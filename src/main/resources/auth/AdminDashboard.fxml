@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.control.cell.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="Controllers.auth.AdminDashboardController"
+      spacing="0" styleClass="admin-dashboard">
+
+    <!-- Admin Header Bar -->
+    <HBox styleClass="admin-header" alignment="CENTER_LEFT" spacing="20">
+        <padding><Insets top="14" right="30" bottom="14" left="30"/></padding>
+
+        <Label text="SportLink — Admin" styleClass="admin-header-title"/>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Label fx:id="adminInfoLabel" text="Admin" styleClass="admin-header-info"/>
+        <Button text="Déconnexion" onAction="#onLogout" styleClass="admin-logout-btn"/>
+    </HBox>
+
+    <!-- Tab Pane for Users / Admins management -->
+    <TabPane fx:id="tabPane" VBox.vgrow="ALWAYS" tabClosingPolicy="UNAVAILABLE"
+             style="-fx-padding: 20;">
+
+        <!-- Users Management Tab -->
+        <Tab text="Gestion Utilisateurs">
+            <VBox spacing="15" style="-fx-padding: 20;">
+                <HBox alignment="CENTER_LEFT" spacing="15">
+                    <Label text="Tous les utilisateurs" styleClass="admin-section-title"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Button text="Rafraîchir" onAction="#onRefreshUsers" styleClass="notif-btn"/>
+                </HBox>
+
+                <Label text="Sélectionnez un utilisateur pour effectuer une action"
+                       style="-fx-text-fill: #777; -fx-font-size: 13px;"/>
+
+                <TableView fx:id="usersTable" VBox.vgrow="ALWAYS" styleClass="notif-table">
+                    <columns>
+                        <TableColumn fx:id="userIdCol" text="ID" prefWidth="50"/>
+                        <TableColumn fx:id="userNomCol" text="Nom" prefWidth="120"/>
+                        <TableColumn fx:id="userPrenomCol" text="Prénom" prefWidth="120"/>
+                        <TableColumn fx:id="userEmailCol" text="Email" prefWidth="200"/>
+                        <TableColumn fx:id="userTypeCol" text="Type" prefWidth="90"/>
+                        <TableColumn fx:id="userStatutCol" text="Statut" prefWidth="100"/>
+                    </columns>
+                </TableView>
+
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Button text="✓ Approuver" onAction="#onApproveUser" styleClass="admin-action-btn approve-btn"/>
+                    <Button text="✕ Désactiver" onAction="#onDeactivateUser" styleClass="admin-action-btn deactivate-btn"/>
+                    <Button text="🗑 Supprimer" onAction="#onDeleteUser" styleClass="admin-action-btn delete-btn"/>
+                </HBox>
+            </VBox>
+        </Tab>
+
+        <!-- Admins Management Tab -->
+        <Tab text="Gestion Admins">
+            <VBox spacing="15" style="-fx-padding: 20;">
+                <HBox alignment="CENTER_LEFT" spacing="15">
+                    <Label text="Tous les administrateurs" styleClass="admin-section-title"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Button text="+ Ajouter Admin" onAction="#onAddAdmin" styleClass="notif-btn"/>
+                    <Button text="Rafraîchir" onAction="#onRefreshAdmins" styleClass="notif-btn"/>
+                </HBox>
+
+                <TableView fx:id="adminsTable" VBox.vgrow="ALWAYS" styleClass="notif-table">
+                    <columns>
+                        <TableColumn fx:id="adminIdCol" text="ID" prefWidth="50"/>
+                        <TableColumn fx:id="adminNomCol" text="Nom" prefWidth="130"/>
+                        <TableColumn fx:id="adminPrenomCol" text="Prénom" prefWidth="130"/>
+                        <TableColumn fx:id="adminEmailCol" text="Email" prefWidth="220"/>
+                        <TableColumn fx:id="adminTelCol" text="Téléphone" prefWidth="130"/>
+                        <TableColumn fx:id="adminStatutCol" text="Statut" prefWidth="90"/>
+                    </columns>
+                </TableView>
+
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Button text="🗑 Supprimer Admin" onAction="#onDeleteAdmin" styleClass="admin-action-btn delete-btn"/>
+                </HBox>
+            </VBox>
+        </Tab>
+
+    </TabPane>
+
+</VBox>

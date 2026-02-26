@@ -1,0 +1,416 @@
+/* Typography - Poppins (loaded in Main if fonts/Poppins-Regular.ttf exists) */
+.root { -fx-font-family: "Poppins", "Segoe UI", sans-serif; -fx-font-size: 14px; }
+
+/* Core colors */
+.primary-color     { -fx-background-color: #053536; }
+.secondary-color   { -fx-background-color: #FFBB02; }
+.third-color       { -fx-background-color: #F4F9F7; }
+.light-bg          { -fx-background-color: #F4F9F7; }
+
+.rounded-30        { -fx-background-radius: 30; -fx-border-radius: 30; }
+.rounded-20        { -fx-background-radius: 20; -fx-border-radius: 20; }
+
+/* Sidebar / Navbar */
+.sidebar {
+    -fx-background-color: #053536;
+    -fx-padding: 20;
+}
+
+.logo-title {
+    -fx-font-size: 26px;
+    -fx-text-fill: #FFBB02;
+    -fx-font-weight: bold;
+    -fx-padding: 0 0 30 0;
+}
+
+.menu-btn {
+    -fx-background-color: transparent;
+    -fx-text-fill: white;
+    -fx-font-size: 16px;
+    -fx-alignment: BASELINE_LEFT;
+    -fx-padding: 14 20;
+    -fx-background-radius: 10;
+}
+
+.menu-btn:hover {
+    -fx-background-color: #0c4b4c;
+}
+
+.menu-btn.login    { -fx-text-fill: #FFBB02; }
+.menu-btn.signup   { -fx-text-fill: #FFBB02; -fx-font-weight: bold; }
+
+/* Hero section */
+.hero-pane {
+    -fx-background-color: linear-gradient(to right, #053536, #0c4b4c);
+    -fx-background-radius: 20;
+}
+
+.hero-title {
+    -fx-font-size: 48px;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+.hero-subtitle {
+    -fx-font-size: 22px;
+    -fx-text-fill: #e0f0ff;
+}
+
+.hero-btn {
+    -fx-background-color: #FFBB02;
+    -fx-text-fill: #053536;
+    -fx-font-size: 18px;
+    -fx-padding: 12 35;
+    -fx-font-weight: bold;
+}
+
+.hero-btn:hover {
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+.hero-btn.secondary {
+    -fx-background-color: transparent;
+    -fx-border-color: #FFBB02;
+    -fx-border-width: 2;
+    -fx-text-fill: #FFBB02;
+}
+
+/* Cards */
+.club-card {
+    -fx-background-color: white;
+    -fx-background-radius: 20;
+    -fx-border-radius: 20;
+    -fx-border-color: #ddd;
+    -fx-padding: 25;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 12, 0, 0, 4);
+    -fx-alignment: center;
+    -fx-pref-width: 320;
+    -fx-pref-height: 220;
+}
+
+.card-title {
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #053536;
+}
+
+.card-desc {
+    -fx-font-size: 15px;
+    -fx-text-fill: #555;
+    -fx-padding: 8 0;
+}
+
+.card-location {
+    -fx-font-size: 15px;
+    -fx-text-fill: #0c4b4c;
+    -fx-font-weight: bold;
+}
+
+/* Section titles */
+.section-title {
+    -fx-font-size: 34px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #053536;
+}
+
+/* Footer */
+.footer {
+    -fx-background-color: #053536;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-padding: 18;
+    -fx-alignment: center;
+}
+
+/* ... keep your existing colors ... */
+
+/* Hero with background image support */
+.hero-pane {
+    -fx-background-size: cover;
+    -fx-background-position: center;
+    -fx-background-repeat: no-repeat;
+    -fx-background-color: linear-gradient(to bottom, rgba(5,53,54,0.7), rgba(5,53,54,0.4)); /* dark overlay for text readability */
+    -fx-background-radius: 20;
+}
+
+.hero-overlay {
+    -fx-background-color: rgba(0,0,0,0.35); /* extra overlay if needed */
+    -fx-padding: 60;
+}
+
+/* Improved hero text */
+.hero-title {
+    -fx-font-size: 60px;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.6), 8, 0, 2, 2);
+}
+
+.hero-subtitle {
+    -fx-font-size: 26px;
+    -fx-text-fill: #e0f0ff;
+    -fx-font-weight: 400;
+}
+
+/* Card improvements */
+.club-card {
+    -fx-background-color: white;
+    -fx-background-radius: 20;
+    -fx-border-radius: 20;
+    -fx-border-color: #e0e0e0;
+    -fx-padding: 20;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 15, 0, 0, 6);
+    -fx-alignment: top-center;
+    -fx-pref-width: 340;
+    -fx-pref-height: 380;
+    -fx-cursor: hand; /* pointer on hover */
+}
+
+.club-card:hover {
+    -fx-scale-x: 1.04;
+    -fx-scale-y: 1.04;
+    -fx-effect: dropshadow(gaussian, rgba(255,187,2,0.4), 20, 0, 0, 8); /* yellow glow */
+}
+
+.card-image {
+    -fx-background-size: cover;
+    -fx-background-position: center;
+    -fx-pref-height: 180;
+    -fx-background-radius: 15 15 0 0;
+}
+
+/* ImageView inside club cards */
+.club-card ImageView {
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 6, 0, 0, 2);
+}
+
+/* Responsive HBox for cards */
+.cards-container {
+    -fx-spacing: 40;
+    -fx-alignment: center;
+}
+
+/* Notifications module */
+.notif-page { -fx-background-color: #F4F9F7; -fx-padding: 24; }
+.notif-title { -fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #053536; }
+.notif-btn { -fx-background-color: #FFBB02; -fx-text-fill: #053536; -fx-font-weight: bold; -fx-padding: 10 24; -fx-background-radius: 10; }
+.notif-btn:hover { -fx-background-color: #e5a800; }
+.notif-btn-danger { -fx-background-color: #c0392b; -fx-text-fill: white; }
+.notif-btn-danger:hover { -fx-background-color: #a93226; }
+.notif-table { -fx-background-color: white; -fx-background-radius: 12; }
+.notif-form-panel { -fx-background-color: white; -fx-background-radius: 12; -fx-padding: 24; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 10, 0, 0, 4); }
+
+/* ============================================ */
+/* Auth module (Login / Register)               */
+/* ============================================ */
+.auth-page {
+    -fx-background-color: #F4F9F7;
+}
+
+.auth-card {
+    -fx-background-color: white;
+    -fx-background-radius: 20;
+    -fx-border-radius: 20;
+    -fx-border-color: #e0e0e0;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 15, 0, 0, 6);
+}
+
+.auth-title {
+    -fx-font-size: 32px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #053536;
+}
+
+.auth-subtitle {
+    -fx-font-size: 15px;
+    -fx-text-fill: #777;
+}
+
+.auth-label {
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #053536;
+}
+
+.auth-input {
+    -fx-pref-height: 42;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-border-color: #ccc;
+    -fx-padding: 8 14;
+    -fx-font-size: 14px;
+}
+
+.auth-input:focused {
+    -fx-border-color: #FFBB02;
+    -fx-effect: dropshadow(gaussian, rgba(255,187,2,0.25), 6, 0, 0, 0);
+}
+
+.auth-btn {
+    -fx-background-color: #053536;
+    -fx-text-fill: white;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-padding: 12 30;
+    -fx-background-radius: 10;
+    -fx-cursor: hand;
+}
+
+.auth-btn:hover {
+    -fx-background-color: #0c4b4c;
+    -fx-scale-x: 1.02;
+    -fx-scale-y: 1.02;
+}
+
+.auth-btn-register {
+    -fx-background-color: #FFBB02;
+    -fx-text-fill: #053536;
+}
+
+.auth-btn-register:hover {
+    -fx-background-color: #e5a800;
+}
+
+.auth-link {
+    -fx-text-fill: #FFBB02;
+    -fx-font-size: 14px;
+}
+
+.auth-link:hover {
+    -fx-text-fill: #053536;
+}
+
+.auth-error {
+    -fx-text-fill: #c0392b;
+    -fx-font-size: 13px;
+}
+
+.auth-success {
+    -fx-text-fill: #27ae60;
+    -fx-font-size: 13px;
+}
+
+/* ======================== ADMIN STYLES ======================== */
+
+.admin-link {
+    -fx-background-color: transparent;
+    -fx-text-fill: #FFBB02;
+    -fx-font-size: 13px;
+    -fx-border-color: #FFBB02;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-padding: 6 18;
+    -fx-cursor: hand;
+}
+
+.admin-link:hover {
+    -fx-background-color: #FFBB02;
+    -fx-text-fill: #053536;
+}
+
+.admin-card {
+    -fx-background-color: white;
+    -fx-background-radius: 16;
+    -fx-padding: 40;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.10), 16, 0, 0, 4);
+}
+
+.admin-title {
+    -fx-font-size: 26px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #053536;
+}
+
+.admin-btn {
+    -fx-background-color: #053536;
+    -fx-text-fill: white;
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-padding: 12 32;
+    -fx-background-radius: 10;
+    -fx-cursor: hand;
+}
+
+.admin-btn:hover {
+    -fx-background-color: #0a5c5e;
+}
+
+/* Admin Dashboard */
+
+.admin-header {
+    -fx-background-color: #053536;
+    -fx-padding: 16 24;
+}
+
+.admin-header-title {
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #FFBB02;
+}
+
+.admin-header-info {
+    -fx-font-size: 14px;
+    -fx-text-fill: white;
+}
+
+.admin-logout-btn {
+    -fx-background-color: #FFBB02;
+    -fx-text-fill: #053536;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-padding: 8 20;
+    -fx-background-radius: 8;
+    -fx-cursor: hand;
+}
+
+.admin-logout-btn:hover {
+    -fx-background-color: #e5a800;
+}
+
+.admin-dashboard {
+    -fx-background-color: #F4F9F7;
+    -fx-padding: 20;
+}
+
+.admin-section-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #053536;
+    -fx-padding: 8 0;
+}
+
+.admin-action-btn {
+    -fx-font-size: 12px;
+    -fx-padding: 6 14;
+    -fx-background-radius: 6;
+    -fx-cursor: hand;
+    -fx-font-weight: bold;
+}
+
+.approve-btn {
+    -fx-background-color: #27ae60;
+    -fx-text-fill: white;
+}
+
+.approve-btn:hover {
+    -fx-background-color: #219a52;
+}
+
+.deactivate-btn {
+    -fx-background-color: #f39c12;
+    -fx-text-fill: white;
+}
+
+.deactivate-btn:hover {
+    -fx-background-color: #d68910;
+}
+
+.delete-btn {
+    -fx-background-color: #c0392b;
+    -fx-text-fill: white;
+}
+
+.delete-btn:hover {
+    -fx-background-color: #a93226;
+}

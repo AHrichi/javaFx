@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="Controllers.auth.LoginController"
+      alignment="CENTER" spacing="20"
+      styleClass="auth-page">
+
+    <padding><Insets top="60" right="60" bottom="60" left="60"/></padding>
+
+    <!-- Card container -->
+    <VBox alignment="CENTER" spacing="25" styleClass="auth-card" maxWidth="420">
+        <padding><Insets top="40" right="40" bottom="40" left="40"/></padding>
+
+        <Label text="Connexion" styleClass="auth-title"/>
+        <Label text="Connectez-vous à votre compte SportLink" styleClass="auth-subtitle"/>
+
+        <VBox spacing="8" alignment="CENTER_LEFT">
+            <Label text="Email" styleClass="auth-label"/>
+            <TextField fx:id="emailField" promptText="Entrez votre email" styleClass="auth-input"/>
+        </VBox>
+
+        <VBox spacing="8" alignment="CENTER_LEFT">
+            <Label text="Mot de passe" styleClass="auth-label"/>
+            <PasswordField fx:id="passwordField" promptText="Entrez votre mot de passe" styleClass="auth-input"/>
+        </VBox>
+
+        <Label fx:id="errorLabel" styleClass="auth-error" wrapText="true"/>
+
+        <Button text="Se connecter" onAction="#onLogin" styleClass="auth-btn" maxWidth="Infinity"/>
+
+        <Hyperlink text="Pas de compte ? S'inscrire" onAction="#onGoToRegister" styleClass="auth-link"/>
+        <Hyperlink text="Connexion Admin" onAction="#onGoToAdminLogin" styleClass="auth-link"/>
+    </VBox>
+
+</VBox>

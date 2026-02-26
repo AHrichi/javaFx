@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="Controllers.notification.NotificationFormController"
+      styleClass="notif-form-panel" spacing="16" alignment="TOP_LEFT">
+
+    <Label text="Titre" style="-fx-font-weight: bold; -fx-text-fill: #333333;"/>
+    <TextField fx:id="fieldTitle" promptText="Titre de la notification" prefHeight="36"/>
+
+    <Label text="Message" style="-fx-font-weight: bold; -fx-text-fill: #333333;"/>
+    <TextArea fx:id="fieldMessage" promptText="Contenu du message" prefRowCount="4" wrapText="true"/>
+
+    <HBox spacing="20">
+        <VBox spacing="4">
+            <Label text="Type" style="-fx-font-weight: bold; -fx-text-fill: #333333;"/>
+            <ComboBox fx:id="comboType" prefWidth="180"/>
+        </VBox>
+        <VBox spacing="4">
+            <Label text="Destinataire (rôle)" style="-fx-font-weight: bold; -fx-text-fill: #333333;"/>
+            <ComboBox fx:id="comboRole" prefWidth="180"/>
+        </VBox>
+    </HBox>
+
+    <HBox spacing="12" alignment="CENTER_RIGHT" style="-fx-padding: 20 0 0 0;">
+        <Button text="Annuler" styleClass="notif-btn" style="-fx-background-color: #999; -fx-text-fill: white;" onAction="#onCancel"/>
+        <Button text="Enregistrer" styleClass="notif-btn" onAction="#onSave"/>
+    </HBox>
+</VBox>

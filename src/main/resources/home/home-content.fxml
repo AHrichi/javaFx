@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.image.*?>
+
+<ScrollPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="Controllers.home.HomeController"
+            fitToWidth="true" style="-fx-background-color: transparent;">
+    
+    <VBox alignment="TOP_CENTER" spacing="60" style="-fx-padding: 0 40 40 40;" styleClass="light-bg">
+
+        <!-- Hero section -->
+        <StackPane prefHeight="500" styleClass="hero-pane">
+            <!-- Background image -->
+            <ImageView fitWidth="1000" fitHeight="500" preserveRatio="false">
+                <image>
+                    <Image url="@/images/hero_bg.jpg"/>
+                </image>
+            </ImageView>
+            <!-- Overlay content -->
+            <VBox alignment="CENTER" spacing="30" styleClass="hero-overlay">
+                <Label text="SportLink" styleClass="hero-title" alignment="CENTER"/>
+                <Label text="Rejoignez l'aventure sportive – Clubs, Séances, Progrès"
+                       styleClass="hero-subtitle" wrapText="true" alignment="CENTER"/>
+            </VBox>
+        </StackPane>
+
+        <!-- Clubs section -->
+        <Label text="Découvrez Nos Clubs Populaires" styleClass="section-title" alignment="CENTER"/>
+
+        <HBox styleClass="cards-container" alignment="CENTER" spacing="40">
+            <!-- Card 1 -->
+            <VBox styleClass="club-card" onMouseClicked="#onClubCardClicked">
+                <ImageView fitWidth="300" fitHeight="180" preserveRatio="false">
+                    <image>
+                        <Image url="@/images/club_natation.jpg"/>
+                    </image>
+                </ImageView>
+                <Label text="Swimming Pro" styleClass="card-title" alignment="CENTER"/>
+                <Label text="Swim • Cardio • Sport" wrapText="true" styleClass="card-desc" alignment="CENTER"/>
+                <Label text="Tunis • 4.8 ★" styleClass="card-location" alignment="CENTER"/>
+            </VBox>
+
+            <!-- Card 2 -->
+            <VBox styleClass="club-card" onMouseClicked="#onClubCardClicked">
+                <ImageView fitWidth="300" fitHeight="180" preserveRatio="false">
+                    <image>
+                        <Image url="@/images/club_pilates.jpg"/>
+                    </image>
+                </ImageView>
+                <Label text="Pilates Zen" styleClass="card-title" alignment="CENTER"/>
+                <Label text="Yoga • Pilates • Méditation" wrapText="true" styleClass="card-desc" alignment="CENTER"/>
+                <Label text="Sfax • 4.9 ★" styleClass="card-location" alignment="CENTER"/>
+            </VBox>
+
+            <!-- Card 3 -->
+            <VBox styleClass="club-card" onMouseClicked="#onClubCardClicked">
+                <ImageView fitWidth="300" fitHeight="180" preserveRatio="false">
+                    <image>
+                        <Image url="@/images/club_fitness.jpg"/>
+                    </image>
+                </ImageView>
+                <Label text="Fitness Academy" styleClass="card-title" alignment="CENTER"/>
+                <Label text="Health • Fitness • Style" wrapText="true" styleClass="card-desc" alignment="CENTER"/>
+                <Label text="Sousse • 4.7 ★" styleClass="card-location" alignment="CENTER"/>
+            </VBox>
+        </HBox>
+
+    </VBox>
+</ScrollPane>

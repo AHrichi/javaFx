@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="Controllers.auth.RegisterController"
+      alignment="CENTER" spacing="20"
+      styleClass="auth-page">
+
+    <padding><Insets top="40" right="60" bottom="40" left="60"/></padding>
+
+    <!-- Card container -->
+    <VBox alignment="CENTER" spacing="20" styleClass="auth-card" maxWidth="420">
+        <padding><Insets top="35" right="40" bottom="35" left="40"/></padding>
+
+        <Label text="Inscription" styleClass="auth-title"/>
+        <Label text="Créez votre compte SportLink" styleClass="auth-subtitle"/>
+
+        <VBox spacing="6" alignment="CENTER_LEFT">
+            <Label text="Nom" styleClass="auth-label"/>
+            <TextField fx:id="nomField" promptText="Votre nom" styleClass="auth-input"/>
+        </VBox>
+
+        <VBox spacing="6" alignment="CENTER_LEFT">
+            <Label text="Prénom" styleClass="auth-label"/>
+            <TextField fx:id="prenomField" promptText="Votre prénom" styleClass="auth-input"/>
+        </VBox>
+
+        <VBox spacing="6" alignment="CENTER_LEFT">
+            <Label text="Email" styleClass="auth-label"/>
+            <TextField fx:id="emailField" promptText="Votre email" styleClass="auth-input"/>
+        </VBox>
+
+        <VBox spacing="6" alignment="CENTER_LEFT">
+            <Label text="Mot de passe" styleClass="auth-label"/>
+            <PasswordField fx:id="passwordField" promptText="Minimum 6 caractères" styleClass="auth-input"/>
+        </VBox>
+
+        <VBox spacing="6" alignment="CENTER_LEFT">
+            <Label text="Confirmer le mot de passe" styleClass="auth-label"/>
+            <PasswordField fx:id="confirmPasswordField" promptText="Confirmez votre mot de passe" styleClass="auth-input"/>
+        </VBox>
+
+        <VBox spacing="6" alignment="CENTER_LEFT">
+            <Label text="Type de compte" styleClass="auth-label"/>
+            <HBox spacing="20" alignment="CENTER_LEFT">
+                <RadioButton fx:id="membreRadio" text="Membre" selected="true">
+                    <toggleGroup><ToggleGroup fx:id="typeGroup"/></toggleGroup>
+                </RadioButton>
+                <RadioButton fx:id="coachRadio" text="Coach" toggleGroup="$typeGroup"/>
+            </HBox>
+        </VBox>
+
+        <Label fx:id="messageLabel" styleClass="auth-error" wrapText="true"/>
+
+        <Button text="S'inscrire" onAction="#onRegister" styleClass="auth-btn auth-btn-register" maxWidth="Infinity"/>
+
+        <Hyperlink text="Déjà un compte ? Se connecter" onAction="#onGoToLogin" styleClass="auth-link"/>
+    </VBox>
+
+</VBox>

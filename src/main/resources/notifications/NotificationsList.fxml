@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="Controllers.notification.NotificationListController"
+      styleClass="notif-page" spacing="20" alignment="TOP_LEFT">
+
+    <HBox alignment="CENTER_LEFT" spacing="20">
+        <Label text="Gestion des notifications" styleClass="notif-title"/>
+        <Button text="+ Nouvelle notification" styleClass="notif-btn" onAction="#onCreate"/>
+    </HBox>
+
+    <TableView fx:id="tableView" styleClass="notif-table" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="colId" text="ID" prefWidth="60"/>
+            <TableColumn fx:id="colTitle" text="Titre" prefWidth="200"/>
+            <TableColumn fx:id="colType" text="Type" prefWidth="100"/>
+            <TableColumn fx:id="colRole" text="Destinataire" prefWidth="120"/>
+            <TableColumn fx:id="colRead" text="Lu" prefWidth="60"/>
+            <TableColumn fx:id="colDate" text="Date" prefWidth="180"/>
+            <TableColumn fx:id="colActions" text="Actions" prefWidth="150"/>
+        </columns>
+    </TableView>
+</VBox>

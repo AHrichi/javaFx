@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="Controllers.home.SidebarController"
+      styleClass="sidebar" prefWidth="240" spacing="10"
+      alignment="TOP_CENTER">
+
+    <Label text="SportLink" styleClass="logo-title"/>
+
+    <Separator style="-fx-background-color: #0c4b4c; -fx-pref-height: 2;"/>
+
+    <Button text="Accueil"        styleClass="menu-btn" onAction="#onHome"/>
+    <Button text="Clubs"          styleClass="menu-btn" onAction="#onClubs"/>
+    <Button text="Séances"        styleClass="menu-btn" onAction="#onSeances"/>
+    <Button text="Notifications"  styleClass="menu-btn" onAction="#onNotifications"/>
+    <VBox VBox.vgrow="ALWAYS"/> <!-- spacer -->
+
+    <Separator style="-fx-background-color: #0c4b4c; -fx-pref-height: 1;"/>
+    <Button text="Déconnexion" styleClass="menu-btn login" onAction="#onLogout"/>
+
+    <Label text="© 2026 - SportLink" style="-fx-text-fill: #aaa; -fx-font-size: 13px; -fx-padding: 20 0 10 0;"/>
+</VBox>
