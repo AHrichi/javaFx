@@ -14,14 +14,14 @@
     </Label>
 
     <VBox spacing="5.0" alignment="CENTER_LEFT">
-        <Label text="Select Member:" textFill="#666" style="-fx-font-weight: bold;"/>
+        <Label text="Sélectionner un membre :" textFill="#666" style="-fx-font-weight: bold;"/>
 
-        <ComboBox fx:id="comboMembre" editable="true" prefWidth="350.0" promptText="Type name to search..." style="-fx-font-size: 14px;"/>
+        <ComboBox fx:id="comboMembre" editable="true" prefWidth="350.0" promptText="Tapez un nom pour rechercher..." style="-fx-font-size: 14px;"/>
 
-        <Label text="* Start typing to filter the list" textFill="#999" style="-fx-font-size: 11px;"/>
+        <Label text="* Commencez à taper pour filtrer la liste" textFill="#999" style="-fx-font-size: 11px;"/>
     </VBox>
 
-    <Button onAction="#confirm" prefWidth="350.0" style="-fx-background-color: #ffb800; -fx-text-fill: #00302e; -fx-font-weight: bold; -fx-cursor: hand; -fx-font-size: 14px; -fx-padding: 10;" text="Add to Session" />
+    <Button onAction="#confirm" prefWidth="350.0" style="-fx-background-color: #ffb800; -fx-text-fill: #00302e; -fx-font-weight: bold; -fx-cursor: hand; -fx-font-size: 14px; -fx-padding: 10;" text="Ajouter à la séance" />
 
     <Label fx:id="lblMessage" textFill="#e74c3c" visible="false" wrapText="true" textAlignment="CENTER"/>
 

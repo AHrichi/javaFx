@@ -2,6 +2,7 @@ Service/user/ServiceCoach.class
 Entite/Notification$Source.class
 Service/notification/INotificationService.class
 Controllers/seance/AjouterSeanceController.class
+Utils/EmailService.class
 Controllers/auth/RegisterController.class
 Utils/DataSource.class
 Controllers/seance/PlanningController$1.class
@@ -23,6 +24,7 @@ Controllers/seance/AddParticipantController$1.class
 Service/IService.class
 Entite/User.class
 Controllers/seance/PlanningController$ViewType.class
+Controllers/seance/ListeParticipantsController$1.class
 org/example/Main.class
 Service/auth/AdminService.class
 Controllers/seance/AjouterSeanceController$1.class
@@ -36,4 +38,5 @@ Controllers/seance/AddParticipantController.class
 Controllers/notification/NotificationListController.class
 Entite/Notification$RecipientRole.class
 Entite/Coach.class
+Utils/EmailService$1.class
 Service/seance/ServiceParticipation.class

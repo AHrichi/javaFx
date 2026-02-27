@@ -9,11 +9,11 @@
 
 <VBox alignment="TOP_CENTER" prefHeight="400.0" prefWidth="500.0" spacing="10.0" style="-fx-background-color: white; -fx-padding: 20;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.seance.ListeParticipantsController">
 
-    <Label fx:id="lblTitre" text="Session Title" textFill="#00302e">
+    <Label fx:id="lblTitre" text="Titre de la séance" textFill="#00302e">
         <font> <Font name="System Bold" size="20.0" /> </font>
     </Label>
 
-    <Label fx:id="lblCapacite" text="Participants: 0 / 20" textFill="#666666">
+    <Label fx:id="lblCapacite" text="Participants : 0 / 20" textFill="#666666">
         <font> <Font size="14.0" /> </font>
     </Label>
 

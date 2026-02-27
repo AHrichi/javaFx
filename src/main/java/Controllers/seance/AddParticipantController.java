@@ -36,7 +36,7 @@ public class AddParticipantController {
     public void setSeance(Seance s) {
         this.currentSeance = s;
         if (s != null) {
-            lblSeanceTitle.setText("Add to: " + s.getTitre());
+            lblSeanceTitle.setText("Ajout à : " + s.getTitre());
         }
     }
 
@@ -90,7 +90,7 @@ public class AddParticipantController {
             });
 
         } catch (SQLException e) {
-            showMessage("Error loading members: " + e.getMessage(), true);
+            showMessage("Erreur lors du chargement des membres : " + e.getMessage(), true);
         }
     }
 
@@ -112,7 +112,7 @@ public class AddParticipantController {
         }
 
         if (selected == null) {
-            showMessage("Please select a valid member from the list.", true);
+            showMessage("Veuillez sélectionner un membre valide dans la liste.", true);
             return;
         }
 

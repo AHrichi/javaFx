@@ -33,7 +33,9 @@ public class AuthService {
     }
 
     private boolean createUser(User user) {
+        System.out.println("### SIGNUP ### Début de la création de l'utilisateur: " + user.getEmail());
         String sql = "INSERT INTO User (nom, prenom, email, mot_de_passe, telephone, ville, date_naissance, photo, type_user, statut) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
         try (PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setString(1, user.getNom());
             stmt.setString(2, user.getPrenom());
@@ -50,12 +52,29 @@ public class AuthService {
             if (result > 0) {
                 ResultSet rs = stmt.getGeneratedKeys();
                 if (rs.next()) {
-                    user.setIdUser(rs.getInt(1));
+                    int generatedId = rs.getInt(1);
+                    user.setIdUser(generatedId);
+                    System.out.println("### SIGNUP ### Utilisateur inséré avec succès. ID généré: " + generatedId);
+                    if ("Coach".equals(user.getTypeUser())) {
+                        String sqlCoach = "INSERT INTO Coach (id_coach) VALUES (?)";
+                        try (PreparedStatement psCoach = connection.prepareStatement(sqlCoach)) {
+                            psCoach.setInt(1, generatedId);
+                            psCoach.executeUpdate();
+                            System.out.println("### SIGNUP ### Profil Coach créé pour l'ID: " + generatedId);
+                        }
+                    } else if ("Membre".equals(user.getTypeUser())) {
+                        String sqlMembre = "INSERT INTO Membre (id_membre) VALUES (?)";
+                        try (PreparedStatement psMembre = connection.prepareStatement(sqlMembre)) {
+                            psMembre.setInt(1, generatedId);
+                            psMembre.executeUpdate();
+                            System.out.println("### SIGNUP ### Profil Membre créé pour l'ID: " + generatedId);
+                        }
+                    }
+                    return true;
                 }
-                return true;
             }
         } catch (SQLException e) {
-            System.err.println("Erreur lors de la création: " + e.getMessage());
+            System.err.println("### SIGNUP ### Erreur lors de la création: " + e.getMessage());
         }
         return false;
     }

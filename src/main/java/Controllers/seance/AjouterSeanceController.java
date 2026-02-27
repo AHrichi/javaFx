@@ -2,7 +2,6 @@ package Controllers.seance;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.scene.layout.Region;
 import javafx.stage.Stage;
 import Entite.Seance;
 import Service.seance.ServiceSeance;
@@ -13,6 +12,8 @@ import java.time.LocalTime;
 import Entite.Coach;
 import Service.user.ServiceCoach;
 import javafx.util.StringConverter;
+import Utils.SessionManager;
+import java.util.List;
 
 public class AjouterSeanceController {
 
@@ -32,7 +33,7 @@ public class AjouterSeanceController {
     @FXML private Label errDate;
     @FXML private Label errHeure;
     @FXML private Label errNiveau;
-    @FXML private ComboBox<Coach> comboCoach; // New Field
+    @FXML private ComboBox<Coach> comboCoach;
     @FXML private Label errCoach;
 
     private ServiceSeance service = new ServiceSeance();
@@ -44,16 +45,10 @@ public class AjouterSeanceController {
     public void initialize() {
         comboNiveau.getItems().addAll("Débutant", "Intermédiaire", "Avancé");
 
-
-        // Setup Spinners
         spinCapacite.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 50, 20));
         spinHeureDebut.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(8, 22, 10));
         spinHeureFin.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(9, 23, 11));
-        try {
-            comboCoach.getItems().addAll(serviceCoach.readAll());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+
         comboCoach.setConverter(new StringConverter<Coach>() {
             @Override
             public String toString(Coach coach) {
@@ -62,9 +57,29 @@ public class AjouterSeanceController {
 
             @Override
             public Coach fromString(String string) {
-                return null; // Not needed
+                return null;
             }
         });
+
+        Entite.User currentUser = SessionManager.getCurrentUser();
+        try {
+            List<Coach> allCoaches = serviceCoach.readAll();
+
+            if (currentUser != null && "Coach".equals(currentUser.getTypeUser())) {
+                for (Coach c : allCoaches) {
+                    if (c.getIdUser() == currentUser.getIdUser()) {
+                        comboCoach.getItems().add(c);
+                        comboCoach.setValue(c);
+                        break;
+                    }
+                }
+                comboCoach.setDisable(true);
+            } else {
+                comboCoach.getItems().addAll(allCoaches);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void setSeanceData(Seance s) {
@@ -80,18 +95,24 @@ public class AjouterSeanceController {
         spinCapacite.getValueFactory().setValue(s.getCapaciteMax());
 
         if (btnAction != null) btnAction.setText("Modifier");
+
         for (Coach c : comboCoach.getItems()) {
             if (c.getIdUser() == s.getIdCoach()) {
                 comboCoach.setValue(c);
                 break;
             }
         }
+
+        Entite.User currentUser = SessionManager.getCurrentUser();
+        if (currentUser != null && "Coach".equals(currentUser.getTypeUser())) {
+            comboCoach.setDisable(true);
+        }
     }
 
     @FXML
     private void sauvegarder() {
         if (!validateInputs()) {
-            return; // Stop if validation fails
+            return;
         }
 
         try {
@@ -110,20 +131,29 @@ public class AjouterSeanceController {
             s.setNiveau(comboNiveau.getValue());
             s.setCapaciteMax(spinCapacite.getValue());
             s.setIdClub(1);
-            s.setIdCoach(1);
             s.setStatut("planifiée");
             s.setPhotoSeance("default.png");
 
             boolean success;
-            if (seanceAModifier == null) {
-                if (comboCoach.getValue() == null) {
-                    showError(errCoach, comboCoach, "Veuillez sélectionner un coach");
-                    return;
-                }
+            Entite.User currentUser = SessionManager.getCurrentUser();
 
-                s.setIdCoach(comboCoach.getValue().getIdUser());
+            if (seanceAModifier == null) {
+                if (currentUser != null && "Coach".equals(currentUser.getTypeUser())) {
+                    s.setIdCoach(currentUser.getIdUser());
+                } else {
+                    if (comboCoach.getValue() == null) {
+                        showError(errCoach, comboCoach, "Veuillez sélectionner un coach");
+                        return;
+                    }
+                    s.setIdCoach(comboCoach.getValue().getIdUser());
+                }
                 success = service.ajouter(s);
             } else {
+                if (currentUser != null && "Coach".equals(currentUser.getTypeUser())) {
+                    s.setIdCoach(currentUser.getIdUser());
+                } else if (comboCoach.getValue() != null) {
+                    s.setIdCoach(comboCoach.getValue().getIdUser());
+                }
                 success = service.modifier(s);
             }
 
@@ -133,7 +163,6 @@ public class AjouterSeanceController {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            // Optional: Show global error alert
             Alert alert = new Alert(Alert.AlertType.ERROR, "Erreur lors de la sauvegarde: " + e.getMessage());
             alert.show();
         }
@@ -143,7 +172,6 @@ public class AjouterSeanceController {
     private boolean validateInputs() {
         boolean isValid = true;
 
-        // 1. Validate Titre
         if (txtTitre.getText() == null || txtTitre.getText().trim().isEmpty()) {
             showError(errTitre, txtTitre, "Le titre est obligatoire");
             isValid = false;
@@ -151,7 +179,6 @@ public class AjouterSeanceController {
             clearError(errTitre, txtTitre);
         }
 
-        // 2. Validate Description
         if (txtDescription.getText() == null || txtDescription.getText().trim().isEmpty()) {
             showError(errDescription, txtDescription, "La description est obligatoire");
             isValid = false;
@@ -159,7 +186,6 @@ public class AjouterSeanceController {
             clearError(errDescription, txtDescription);
         }
 
-        // 3. Validate Date
         if (datePicker.getValue() == null) {
             showError(errDate, datePicker, "Veuillez choisir une date");
             isValid = false;
@@ -170,7 +196,6 @@ public class AjouterSeanceController {
             clearError(errDate, datePicker);
         }
 
-        // 4. Validate Hours
         int start = spinHeureDebut.getValue();
         int end = spinHeureFin.getValue();
         if (end <= start) {
@@ -183,7 +208,6 @@ public class AjouterSeanceController {
             errHeure.setManaged(false);
         }
 
-        // 5. Validate Niveau
         if (comboNiveau.getValue() == null) {
             showError(errNiveau, comboNiveau, "Veuillez sélectionner un niveau");
             isValid = false;
@@ -194,7 +218,6 @@ public class AjouterSeanceController {
         return isValid;
     }
 
-    // Helper to show red error text and border
     private void showError(Label errorLabel, Control inputField, String message) {
         errorLabel.setText(message);
         errorLabel.setVisible(true);
@@ -202,11 +225,9 @@ public class AjouterSeanceController {
         inputField.setStyle("-fx-border-color: #e74c3c; -fx-border-radius: 5;");
     }
 
-    // Helper to hide error
     private void clearError(Label errorLabel, Control inputField) {
         errorLabel.setVisible(false);
         errorLabel.setManaged(false);
-        // Reset to default style (grey border)
         inputField.setStyle("-fx-border-color: #ddd; -fx-border-radius: 5;");
     }
 
