@@ -1,14 +1,20 @@
 package Service.seance;
 
+import Service.IService;
 import Utils.DataSource;
+import Utils.EmailService;
 import java.sql.*;
 import Entite.Membre;
+import Entite.Seance;
+import net.fortuna.ical4j.model.component.Participant;
+
 import java.util.ArrayList;
 import java.util.List;
 
-public class ServiceParticipation {
+public class ServiceParticipation implements IService<Participant> {
 
     private Connection getConnect() { return DataSource.getConnection(); }
+    private ServiceSeance serviceSeance = new ServiceSeance();
 
     // Method to join a session
     public String participer(int idSeance, int idMembre) {
@@ -46,6 +52,11 @@ public class ServiceParticipation {
             ps.setInt(2, idMembre);
 
             ps.executeUpdate();
+
+            // 4. Send Email Notification
+            sendParticipationEmail(idSeance, idMembre, "Ajout à une séance",
+                    "Bonjour,\n\nVous avez été ajouté avec succès à la séance : ");
+
             return "Inscription réussie !";
 
         } catch (SQLException e) {
@@ -57,6 +68,10 @@ public class ServiceParticipation {
     // Method to cancel
     public boolean annulerParticipation(int idSeance, int idMembre) {
         try {
+            // Send email before deleting to ensure we still have the session data
+            sendParticipationEmail(idSeance, idMembre, "Annulation de participation",
+                    "Bonjour,\n\nVotre participation a été annulée pour la séance : ");
+
             String req = "DELETE FROM participation WHERE id_seance=? AND id_membre=?";
             PreparedStatement ps = getConnect().prepareStatement(req);
             ps.setInt(1, idSeance);
@@ -65,6 +80,33 @@ public class ServiceParticipation {
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
+        }
+    }
+
+    // Helper method to fetch details and send email
+    private void sendParticipationEmail(int idSeance, int idMembre, String subject, String messagePrefix) {
+        try {
+            // Fetch Member Email
+            String emailReq = "SELECT email, prenom FROM User WHERE id_user = ?";
+            PreparedStatement psUser = getConnect().prepareStatement(emailReq);
+            psUser.setInt(1, idMembre);
+            ResultSet rsUser = psUser.executeQuery();
+
+            if (rsUser.next()) {
+                String email = rsUser.getString("email");
+
+                // Fetch Seance Details
+                Seance seance = serviceSeance.findbyId(idSeance);
+                if (seance != null) {
+                    String body = messagePrefix + seance.getTitre() +
+                            "\nDate: " + seance.getDateDebut().toLocalDate() +
+                            "\nHeure: " + seance.getDateDebut().toLocalTime() +
+                            "\n\nL'équipe SportLink.";
+                    EmailService.envoyerEmail(email, subject, body);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 
@@ -117,5 +159,30 @@ public class ServiceParticipation {
             e.printStackTrace();
         }
         return list;
+    }
+
+    @Override
+    public boolean ajouter(Participant participant) throws SQLException {
+        return false;
+    }
+
+    @Override
+    public boolean supprimer(Participant participant) throws SQLException {
+        return false;
+    }
+
+    @Override
+    public boolean modifier(Participant participant) throws SQLException {
+        return false;
+    }
+
+    @Override
+    public Participant findbyId(int id) throws SQLException {
+        return null;
+    }
+
+    @Override
+    public List<Participant> readAll() throws SQLException {
+        return List.of();
     }
 }

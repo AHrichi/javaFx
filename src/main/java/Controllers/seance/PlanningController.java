@@ -262,7 +262,7 @@ public class PlanningController {
         gridPlanning.getRowConstraints().add(headerRow);
 
         for (int h = START_HOUR; h < END_HOUR; h++) {
-            RowConstraints row = new RowConstraints(60);
+            RowConstraints row = new RowConstraints(120);
             gridPlanning.getRowConstraints().add(row);
         }
 

@@ -1,9 +1,10 @@
 package Service.seance;
 
 import Service.IService;
-
 import Entite.Seance;
+import Entite.Membre;
 import Utils.DataSource;
+import Utils.EmailService;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -86,7 +87,13 @@ public class ServiceSeance implements IService<Seance> {
     // ✅ Supprimer une séance
     @Override
     public boolean supprimer(Seance seance) throws SQLException {
+        // 1. Notify participants before deleting the session
+        notifyParticipants(seance.getIdSeance(),
+                "Séance annulée : " + seance.getTitre(),
+                "Bonjour,\n\nLa séance '" + seance.getTitre() + "' prévue le " + seance.getDateDebut() + " a été annulée par le coach.\n\nL'équipe SportLink."
+        );
 
+        // 2. Delete the session
         String req = "DELETE FROM Seance WHERE id_seance = ?";
         PreparedStatement ps = getConnect().prepareStatement(req);
         ps.setInt(1, seance.getIdSeance());
@@ -111,7 +118,17 @@ public class ServiceSeance implements IService<Seance> {
         ps.setString(6, seance.getStatut());
         ps.setInt(7, seance.getIdSeance());
 
-        return ps.executeUpdate() > 0;
+        boolean isUpdated = ps.executeUpdate() > 0;
+
+        // 3. Notify participants of the update
+        if (isUpdated) {
+            notifyParticipants(seance.getIdSeance(),
+                    "Séance modifiée : " + seance.getTitre(),
+                    "Bonjour,\n\nLes détails de la séance '" + seance.getTitre() + "' prévue le " + seance.getDateDebut().toLocalDate() + " ont été mis à jour.\n\nL'équipe SportLink."
+            );
+        }
+
+        return isUpdated;
     }
 
     // ✅ Find by ID
@@ -137,5 +154,16 @@ public class ServiceSeance implements IService<Seance> {
         }
 
         return null;
+    }
+
+    private void notifyParticipants(int idSeance, String subject, String body) {
+        ServiceParticipation sp = new ServiceParticipation();
+        List<Membre> participants = sp.getParticipants(idSeance);
+
+        for (Membre m : participants) {
+            if (m.getEmail() != null && !m.getEmail().isEmpty()) {
+                EmailService.envoyerEmail(m.getEmail(), subject, body);
+            }
+        }
     }
 }
