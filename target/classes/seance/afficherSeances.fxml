@@ -15,7 +15,8 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.ComboBox?>
 
-<BorderPane prefHeight="700.0" prefWidth="1000.0" style="-fx-background-color: #f4f6f8;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.seance.PlanningController">
+<BorderPane prefHeight="700.0" prefWidth="1000.0" style="-fx-background-color: #f4f6f8;"
+            xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.seance.PlanningController">
 
     <top>
         <VBox style="-fx-background-color: #00302e; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);">
@@ -63,6 +64,8 @@
                 <HBox alignment="CENTER_LEFT" spacing="15.0" style="-fx-padding: 0 25 15 25;">
                     <children>
                         <TextField fx:id="txtSearch" promptText="🔍 Rechercher une séance..." style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white; -fx-prompt-text-fill: #aaa; -fx-background-radius: 15; -fx-pref-width: 200;" />
+
+                        <ComboBox fx:id="filterClub" promptText="Club" style="-fx-background-color: rgba(255,255,255,0.15); -fx-background-radius: 15; -fx-text-base-color: white;" />
 
                         <ComboBox fx:id="filterCoach" promptText="Coach" style="-fx-background-color: rgba(255,255,255,0.15); -fx-background-radius: 15; -fx-text-base-color: white;" />
 

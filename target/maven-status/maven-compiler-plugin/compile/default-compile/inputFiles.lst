@@ -11,12 +11,14 @@
 /home/ahmed-hrichi/Desktop/school project/javaFx/src/main/java/Service/notification/INotificationService.java
 /home/ahmed-hrichi/Desktop/school project/javaFx/src/main/java/Controllers/notification/NotificationListController.java
 /home/ahmed-hrichi/Desktop/school project/javaFx/src/main/java/Controllers/home/HomeController.java
+/home/ahmed-hrichi/Desktop/school project/javaFx/src/main/java/Service/club/ServiceClub.java
 /home/ahmed-hrichi/Desktop/school project/javaFx/src/main/java/Utils/SessionManager.java
 /home/ahmed-hrichi/Desktop/school project/javaFx/src/main/java/Controllers/seance/PlanningController.java
 /home/ahmed-hrichi/Desktop/school project/javaFx/src/main/java/Controllers/home/SidebarController.java
 /home/ahmed-hrichi/Desktop/school project/javaFx/src/main/java/Controllers/auth/AdminLoginController.java
 /home/ahmed-hrichi/Desktop/school project/javaFx/src/main/java/Controllers/auth/LoginController.java
 /home/ahmed-hrichi/Desktop/school project/javaFx/src/main/java/Service/auth/AdminService.java
+/home/ahmed-hrichi/Desktop/school project/javaFx/src/main/java/Entite/Club.java
 /home/ahmed-hrichi/Desktop/school project/javaFx/src/main/java/Entite/Admin.java
 /home/ahmed-hrichi/Desktop/school project/javaFx/src/main/java/org/example/Main.java
 /home/ahmed-hrichi/Desktop/school project/javaFx/src/main/java/Service/seance/ServiceParticipation.java

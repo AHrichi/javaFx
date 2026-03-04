@@ -1,7 +1,10 @@
 Service/user/ServiceCoach.class
 Entite/Notification$Source.class
 Service/notification/INotificationService.class
+Controllers/seance/PlanningController$2.class
 Controllers/seance/AjouterSeanceController.class
+Controllers/seance/AjouterSeanceController$2.class
+Entite/Club.class
 Utils/EmailService.class
 Controllers/auth/RegisterController.class
 Utils/DataSource.class
@@ -33,6 +36,7 @@ Controllers/seance/ListeParticipantsController.class
 Entite/Notification.class
 Entite/Admin.class
 Service/notification/NotificationService.class
+Service/club/ServiceClub.class
 Controllers/auth/AdminLoginController.class
 Controllers/seance/AddParticipantController.class
 Controllers/notification/NotificationListController.class
