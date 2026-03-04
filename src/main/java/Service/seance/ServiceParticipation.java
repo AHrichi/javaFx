@@ -19,7 +19,29 @@ public class ServiceParticipation implements IService<Participant> {
     // Method to join a session
     public String participer(int idSeance, int idMembre) {
         try {
-            // 1. Check if already registered
+            // 1. Fetch target seance details to check time and status
+            String seanceReq = "SELECT date_debut, date_fin, statut FROM Seance WHERE id_seance = ?";
+            PreparedStatement psTarget = getConnect().prepareStatement(seanceReq);
+            psTarget.setInt(1, idSeance);
+            ResultSet rsTarget = psTarget.executeQuery();
+
+            if (!rsTarget.next()) {
+                return "Séance introuvable !";
+            }
+
+            Timestamp targetDebut = rsTarget.getTimestamp("date_debut");
+            Timestamp targetFin = rsTarget.getTimestamp("date_fin");
+            String statut = rsTarget.getString("statut");
+
+            // EDGE CASE: Prevent joining past or cancelled sessions
+            if (targetDebut.before(new Timestamp(System.currentTimeMillis()))) {
+                return "Action refusée : Vous ne pouvez pas rejoindre une séance déjà commencée ou passée.";
+            }
+            if (!"planifiée".equals(statut)) {
+                return "Action refusée : Cette séance est " + statut + ".";
+            }
+
+            // 2. Check if already registered
             String checkReq = "SELECT count(*) FROM participation WHERE id_seance = ? AND id_membre = ?";
             PreparedStatement psCheck = getConnect().prepareStatement(checkReq);
             psCheck.setInt(1, idSeance);
@@ -29,7 +51,23 @@ public class ServiceParticipation implements IService<Participant> {
                 return "Déjà inscrit !";
             }
 
-            // 2. Check Capacity (Current participants vs Max Capacity)
+            // 3. EDGE CASE: Check overlapping sessions for this member
+            // A session overlaps if (Existing_Start < Target_End) AND (Existing_End > Target_Start)
+            String overlapReq = "SELECT count(*) FROM participation p " +
+                    "JOIN Seance s ON p.id_seance = s.id_seance " +
+                    "WHERE p.id_membre = ? AND p.id_seance != ? " +
+                    "AND s.date_debut < ? AND s.date_fin > ?";
+            PreparedStatement psOverlap = getConnect().prepareStatement(overlapReq);
+            psOverlap.setInt(1, idMembre);
+            psOverlap.setInt(2, idSeance);
+            psOverlap.setTimestamp(3, targetFin);
+            psOverlap.setTimestamp(4, targetDebut);
+            ResultSet rsOverlap = psOverlap.executeQuery();
+            if (rsOverlap.next() && rsOverlap.getInt(1) > 0) {
+                return "Conflit d'horaire : Le membre a déjà une autre séance prévue à ce moment-là !";
+            }
+
+            // 4. Check Capacity
             String capReq = "SELECT s.capacite_max, (SELECT COUNT(*) FROM participation p WHERE p.id_seance = s.id_seance) as total " +
                     "FROM Seance s WHERE s.id_seance = ?";
             PreparedStatement psCap = getConnect().prepareStatement(capReq);
@@ -45,7 +83,7 @@ public class ServiceParticipation implements IService<Participant> {
                 }
             }
 
-            // 3. Add Reservation
+            // 5. Add Reservation
             String req = "INSERT INTO participation (id_seance, id_membre) VALUES (?, ?)";
             PreparedStatement ps = getConnect().prepareStatement(req);
             ps.setInt(1, idSeance);
@@ -53,11 +91,11 @@ public class ServiceParticipation implements IService<Participant> {
 
             ps.executeUpdate();
 
-            // 4. Send Email Notification
+            // 6. Send Email Notification
             sendParticipationEmail(idSeance, idMembre, "Ajout à une séance",
                     "Bonjour,\n\nVous avez été ajouté avec succès à la séance : ");
 
-            return "Inscription réussie !";
+            return "Inscription réussie ! Un email a été envoyé au membre.";
 
         } catch (SQLException e) {
             e.printStackTrace();

@@ -627,6 +627,12 @@ public class PlanningController {
                 try {
                     serviceSeance.supprimer(s);
                     rafraichirPlanning();
+                    Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
+                    successAlert.setTitle("Succès");
+                    successAlert.setHeaderText("Séance supprimée");
+                    successAlert.setContentText("La séance a été supprimée et un email d'annulation a été envoyé aux participants.");
+                    successAlert.showAndWait();
+
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
