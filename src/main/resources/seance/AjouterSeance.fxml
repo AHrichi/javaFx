@@ -15,7 +15,8 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox alignment="TOP_CENTER" prefWidth="480.0" spacing="20.0" style="-fx-background-color: white; -fx-background-radius: 10; -fx-border-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.seance.AjouterSeanceController">
+<VBox alignment="TOP_CENTER" prefWidth="480.0" spacing="20.0" style="-fx-background-color: white; -fx-background-radius: 10; -fx-border-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);"
+      xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.seance.AjouterSeanceController">
 
     <padding>
         <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
@@ -91,20 +92,29 @@
                     <Label fx:id="errNiveau" text="Niveau requis" textFill="#e74c3c" visible="false" managed="false" style="-fx-font-size: 11px;"/>
                 </VBox>
 
-                <Label text="Coach :" textFill="#555555" GridPane.rowIndex="5">
+                <Label text="Club :" textFill="#555555" GridPane.rowIndex="5">
                     <font> <Font name="Segoe UI Semibold" size="13.0" /> </font>
                 </Label>
                 <VBox spacing="2" GridPane.columnIndex="1" GridPane.rowIndex="5">
+                    <ComboBox fx:id="comboClub" prefWidth="250.0" promptText="Sélectionner un club"
+                              style="-fx-background-radius: 5; -fx-background-color: white; -fx-border-color: #ddd; -fx-border-radius: 5;" />
+                    <Label fx:id="errClub" text="Club requis" textFill="#e74c3c" visible="false" managed="false" style="-fx-font-size: 11px;"/>
+                </VBox>
+
+                <Label text="Coach :" textFill="#555555" GridPane.rowIndex="6">
+                    <font> <Font name="Segoe UI Semibold" size="13.0" /> </font>
+                </Label>
+                <VBox spacing="2" GridPane.columnIndex="1" GridPane.rowIndex="6">
                     <ComboBox fx:id="comboCoach" prefWidth="250.0" promptText="Sélectionner un coach"
                               style="-fx-background-radius: 5; -fx-background-color: white; -fx-border-color: #ddd; -fx-border-radius: 5;" />
                     <Label fx:id="errCoach" text="Coach requis" textFill="#e74c3c" visible="false" managed="false" style="-fx-font-size: 11px;"/>
                 </VBox>
 
-                <Label text="Places :" textFill="#555555" GridPane.rowIndex="6">
+                <Label text="Places :" textFill="#555555" GridPane.rowIndex="7">
                     <font> <Font name="Segoe UI Semibold" size="13.0" /> </font>
                 </Label>
                 <Spinner fx:id="spinCapacite" editable="true" prefWidth="100.0" style="-fx-background-radius: 5;"
-                         GridPane.columnIndex="1" GridPane.rowIndex="6" />
+                         GridPane.columnIndex="1" GridPane.rowIndex="7" />
 
             </children>
         </GridPane>

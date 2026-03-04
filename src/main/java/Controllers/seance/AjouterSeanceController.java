@@ -10,7 +10,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import Entite.Coach;
+import Entite.Club;
 import Service.user.ServiceCoach;
+import Service.club.ServiceClub;
 import javafx.util.StringConverter;
 import Utils.SessionManager;
 import java.util.List;
@@ -26,6 +28,8 @@ public class AjouterSeanceController {
     @FXML private Spinner<Integer> spinHeureDebut;
     @FXML private Spinner<Integer> spinHeureFin;
     @FXML private Button btnAction;
+    @FXML private ComboBox<Club> comboClub;
+    @FXML private ComboBox<Coach> comboCoach;
 
     // --- Error Labels ---
     @FXML private Label errTitre;
@@ -33,11 +37,12 @@ public class AjouterSeanceController {
     @FXML private Label errDate;
     @FXML private Label errHeure;
     @FXML private Label errNiveau;
-    @FXML private ComboBox<Coach> comboCoach;
+    @FXML private Label errClub;
     @FXML private Label errCoach;
 
     private ServiceSeance service = new ServiceSeance();
     private ServiceCoach serviceCoach = new ServiceCoach();
+    private ServiceClub serviceClub = new ServiceClub(); // Service pour récupérer les clubs
     private boolean isSaved = false;
     private Seance seanceAModifier = null;
 
@@ -49,6 +54,20 @@ public class AjouterSeanceController {
         spinHeureDebut.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(8, 22, 10));
         spinHeureFin.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(9, 23, 11));
 
+        // --- Configurer le ComboBox Club ---
+        comboClub.setConverter(new StringConverter<Club>() {
+            @Override
+            public String toString(Club club) {
+                return (club != null) ? club.getNom() : "";
+            }
+
+            @Override
+            public Club fromString(String string) {
+                return null;
+            }
+        });
+
+        // --- Configurer le ComboBox Coach ---
         comboCoach.setConverter(new StringConverter<Coach>() {
             @Override
             public String toString(Coach coach) {
@@ -61,9 +80,19 @@ public class AjouterSeanceController {
             }
         });
 
-        Entite.User currentUser = SessionManager.getCurrentUser();
+        // --- 1. Charger la liste des clubs (Isolé) ---
+        try {
+            List<Club> allClubs = serviceClub.readAll();
+            comboClub.getItems().addAll(allClubs);
+        } catch (Exception e) {
+            System.out.println("Erreur SQL lors du chargement des clubs : " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        // --- 2. Charger la liste des coachs (Isolé) ---
         try {
             List<Coach> allCoaches = serviceCoach.readAll();
+            Entite.User currentUser = SessionManager.getCurrentUser();
 
             if (currentUser != null && "Coach".equals(currentUser.getTypeUser())) {
                 for (Coach c : allCoaches) {
@@ -73,11 +102,12 @@ public class AjouterSeanceController {
                         break;
                     }
                 }
-                comboCoach.setDisable(true);
+                comboCoach.setDisable(true); // Verrouiller sur le coach connecté
             } else {
                 comboCoach.getItems().addAll(allCoaches);
             }
         } catch (Exception e) {
+            System.out.println("Erreur SQL lors du chargement des coachs : " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -96,6 +126,15 @@ public class AjouterSeanceController {
 
         if (btnAction != null) btnAction.setText("Modifier");
 
+        // Pré-sélectionner le club
+        for (Club club : comboClub.getItems()) {
+            if (club.getIdClub() == s.getIdClub()) {
+                comboClub.setValue(club);
+                break;
+            }
+        }
+
+        // Pré-sélectionner le coach
         for (Coach c : comboCoach.getItems()) {
             if (c.getIdUser() == s.getIdCoach()) {
                 comboCoach.setValue(c);
@@ -130,7 +169,10 @@ public class AjouterSeanceController {
             s.setDateFin(fin);
             s.setNiveau(comboNiveau.getValue());
             s.setCapaciteMax(spinCapacite.getValue());
-            s.setIdClub(1);
+
+            // Assigner l'ID du club sélectionné
+            s.setIdClub(comboClub.getValue().getIdClub());
+
             s.setStatut("planifiée");
             s.setPhotoSeance("default.png");
 
@@ -213,6 +255,14 @@ public class AjouterSeanceController {
             isValid = false;
         } else {
             clearError(errNiveau, comboNiveau);
+        }
+
+        // Validation du Club
+        if (comboClub.getValue() == null) {
+            showError(errClub, comboClub, "Veuillez sélectionner un club");
+            isValid = false;
+        } else {
+            clearError(errClub, comboClub);
         }
 
         return isValid;

@@ -32,7 +32,9 @@ import java.util.Locale;
 import java.util.stream.Collectors;
 import Service.seance.ServiceParticipation;
 import Entite.Coach;
+import Entite.Club;
 import Service.user.ServiceCoach;
+import Service.club.ServiceClub;
 import javafx.util.StringConverter;
 import java.util.stream.Stream;
 
@@ -50,6 +52,8 @@ public class PlanningController {
     @FXML
     private TextField txtSearch;
     @FXML
+    private ComboBox<Club> filterClub;
+    @FXML
     private ComboBox<Coach> filterCoach;
     @FXML
     private ComboBox<String> filterNiveau;
@@ -57,6 +61,7 @@ public class PlanningController {
     private Button btnAddSession;
 
     private final ServiceCoach serviceCoach = new ServiceCoach();
+    private final ServiceClub serviceClub = new ServiceClub();
     private final ServiceParticipation serviceParticipation = new ServiceParticipation();
 
     // --- STATE MANAGEMENT ---
@@ -80,7 +85,27 @@ public class PlanningController {
         // 1. Initialize Level Filter
         filterNiveau.getItems().addAll("Débutant", "Intermédiaire", "Avancé");
 
-        // 2. Initialize Coach Filter
+        // 2. Initialize Club Filter
+        try {
+            List<Club> clubs = serviceClub.readAll();
+            filterClub.getItems().addAll(clubs);
+
+            filterClub.setConverter(new StringConverter<Club>() {
+                @Override
+                public String toString(Club c) {
+                    return c == null ? null : c.getNom();
+                }
+
+                @Override
+                public Club fromString(String string) {
+                    return null;
+                }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        // 3. Initialize Coach Filter
         try {
             List<Coach> coaches = serviceCoach.readAll();
             filterCoach.getItems().addAll(coaches);
@@ -101,6 +126,7 @@ public class PlanningController {
         }
 
         txtSearch.textProperty().addListener((obs, oldVal, newVal) -> rafraichirPlanning());
+        filterClub.valueProperty().addListener((obs, oldVal, newVal) -> rafraichirPlanning());
         filterCoach.valueProperty().addListener((obs, oldVal, newVal) -> rafraichirPlanning());
         filterNiveau.valueProperty().addListener((obs, oldVal, newVal) -> rafraichirPlanning());
 
@@ -191,6 +217,9 @@ public class PlanningController {
 
     private List<Seance> filterSessions(List<Seance> allSeances) {
         Stream<Seance> stream = allSeances.stream();
+
+        stream = stream.filter(s -> s.getIdClub() > 0);
+
         User currentUser = Utils.SessionManager.getCurrentUser();
 
         if (currentUser != null && "Coach".equals(currentUser.getTypeUser())) {
@@ -199,6 +228,11 @@ public class PlanningController {
 
         if (txtSearch.getText() != null && !txtSearch.getText().isEmpty()) {
             stream = stream.filter(s -> s.getTitre().toLowerCase().contains(txtSearch.getText().toLowerCase()));
+        }
+
+        if (filterClub.getValue() != null) {
+            int selectedClubId = filterClub.getValue().getIdClub();
+            stream = stream.filter(s -> s.getIdClub() == selectedClubId);
         }
 
         if (filterCoach.getValue() != null && (currentUser == null || !"Coach".equals(currentUser.getTypeUser()))) {
@@ -593,6 +627,7 @@ public class PlanningController {
     @FXML
     private void clearFilters() {
         txtSearch.clear();
+        filterClub.setValue(null);
         filterCoach.setValue(null);
         filterNiveau.setValue(null);
         rafraichirPlanning();

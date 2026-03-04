@@ -32,29 +32,24 @@ public class ServiceSeance implements IService<Seance> {
         ps.setTimestamp(4, debut);
         ResultSet rs = ps.executeQuery();
         if (rs.next()) {
-            return rs.getInt(1) == 0; // Return true if 0 overlaps found
+            return rs.getInt(1) == 0;
         }
         return true;
     }
 
-
-    // Validations shared between Add and Edit
     private void validerDonneesSeance(Seance seance) throws SQLException {
         Timestamp debut = Timestamp.valueOf(seance.getDateDebut());
         Timestamp fin = Timestamp.valueOf(seance.getDateFin());
 
-        // Edge Case: End time before start time
         if (fin.before(debut) || fin.equals(debut)) {
             throw new SQLException("Erreur : L'heure de fin doit être strictement postérieure à l'heure de début.");
         }
 
-        // Edge Case: Invalid capacity
         if (seance.getCapaciteMax() <= 0) {
             throw new SQLException("Erreur : La capacité maximale doit être d'au moins 1 participant.");
         }
     }
 
-    // ✅ Ajouter une séance
     @Override
     public boolean ajouter(Seance seance) throws SQLException {
         validerDonneesSeance(seance);
@@ -62,7 +57,6 @@ public class ServiceSeance implements IService<Seance> {
         Timestamp debut = Timestamp.valueOf(seance.getDateDebut());
         Timestamp fin = Timestamp.valueOf(seance.getDateFin());
 
-        // Check coach overlap (-1 because the session doesn't exist yet)
         if (!isCoachAvailable(seance.getIdCoach(), debut, fin, -1)) {
             throw new SQLException("Conflit d'horaire : Le coach sélectionné a déjà une séance prévue sur cette plage horaire.");
         }
@@ -88,7 +82,6 @@ public class ServiceSeance implements IService<Seance> {
         return ps.executeUpdate() > 0;
     }
 
-    // ✅ Modifier une séance
     @Override
     public boolean modifier(Seance seance) throws SQLException {
         validerDonneesSeance(seance);
@@ -96,12 +89,12 @@ public class ServiceSeance implements IService<Seance> {
         Timestamp debut = Timestamp.valueOf(seance.getDateDebut());
         Timestamp fin = Timestamp.valueOf(seance.getDateFin());
 
-        // Check coach overlap (exclude the current session being edited)
         if (!isCoachAvailable(seance.getIdCoach(), debut, fin, seance.getIdSeance())) {
             throw new SQLException("Conflit d'horaire : Le coach a été assigné à une autre séance sur cette plage horaire.");
         }
 
-        String req = "UPDATE Seance SET titre=?, description=?, date_debut=?, date_fin=?, capacite_max=?, statut=?, id_coach=? " +
+        // AJOUT DE id_club=? ICI
+        String req = "UPDATE Seance SET titre=?, description=?, date_debut=?, date_fin=?, capacite_max=?, statut=?, id_coach=?, id_club=? " +
                 "WHERE id_seance=?";
 
         PreparedStatement ps = getConnect().prepareStatement(req);
@@ -113,11 +106,11 @@ public class ServiceSeance implements IService<Seance> {
         ps.setInt(5, seance.getCapaciteMax());
         ps.setString(6, seance.getStatut());
         ps.setInt(7, seance.getIdCoach());
-        ps.setInt(8, seance.getIdSeance());
+        ps.setInt(8, seance.getIdClub()); // Mise à jour du club
+        ps.setInt(9, seance.getIdSeance());
 
         boolean isUpdated = ps.executeUpdate() > 0;
 
-        // Notify participants of the update
         if (isUpdated) {
             notifyParticipants(seance.getIdSeance(),
                     "Séance modifiée : " + seance.getTitre(),
@@ -128,52 +121,38 @@ public class ServiceSeance implements IService<Seance> {
         return isUpdated;
     }
 
-    // ✅ Afficher toutes les séances
     @Override
     public List<Seance> readAll() throws SQLException {
-
         List<Seance> list = new ArrayList<>();
-
         String query = "SELECT * FROM Seance";
         ResultSet rs = st.executeQuery(query);
 
         while (rs.next()) {
-
             Seance seance = new Seance();
-
             seance.setIdSeance(rs.getInt("id_seance"));
             seance.setTitre(rs.getString("titre"));
             seance.setDescription(rs.getString("description"));
-
             seance.setDateDebut(rs.getTimestamp("date_debut").toLocalDateTime());
             seance.setDateFin(rs.getTimestamp("date_fin").toLocalDateTime());
-
             seance.setIdClub(rs.getInt("id_club"));
             seance.setIdCoach(rs.getInt("id_coach"));
-
             seance.setTypeSeance(rs.getString("type_seance"));
             seance.setNiveau(rs.getString("niveau"));
-
             seance.setCapaciteMax(rs.getInt("capacite_max"));
             seance.setStatut(rs.getString("statut"));
             seance.setPhotoSeance(rs.getString("photo_seance"));
-
             list.add(seance);
         }
-
         return list;
     }
 
-    // ✅ Supprimer une séance
     @Override
     public boolean supprimer(Seance seance) throws SQLException {
-        // 1. Notify participants before deleting the session
         notifyParticipants(seance.getIdSeance(),
                 "Séance annulée : " + seance.getTitre(),
                 "Bonjour,\n\nLa séance '" + seance.getTitre() + "' prévue le " + seance.getDateDebut() + " a été annulée par le coach.\n\nL'équipe SportLink."
         );
 
-        // 2. Delete the session
         String req = "DELETE FROM Seance WHERE id_seance = ?";
         PreparedStatement ps = getConnect().prepareStatement(req);
         ps.setInt(1, seance.getIdSeance());
@@ -181,35 +160,29 @@ public class ServiceSeance implements IService<Seance> {
         return ps.executeUpdate() > 0;
     }
 
-    // ✅ Find by ID
     @Override
     public Seance findbyId(int id) throws SQLException {
-
         String req = "SELECT * FROM Seance WHERE id_seance=?";
         PreparedStatement ps = getConnect().prepareStatement(req);
         ps.setInt(1, id);
-
         ResultSet rs = ps.executeQuery();
 
         if (rs.next()) {
             Seance seance = new Seance();
-
             seance.setIdSeance(rs.getInt("id_seance"));
             seance.setTitre(rs.getString("titre"));
             seance.setDescription(rs.getString("description"));
             seance.setDateDebut(rs.getTimestamp("date_debut").toLocalDateTime());
             seance.setDateFin(rs.getTimestamp("date_fin").toLocalDateTime());
-
+            seance.setIdClub(rs.getInt("id_club"));
             return seance;
         }
-
         return null;
     }
 
     private void notifyParticipants(int idSeance, String subject, String body) {
         ServiceParticipation sp = new ServiceParticipation();
         List<Membre> participants = sp.getParticipants(idSeance);
-
         for (Membre m : participants) {
             if (m.getEmail() != null && !m.getEmail().isEmpty()) {
                 EmailService.envoyerEmail(m.getEmail(), subject, body);
