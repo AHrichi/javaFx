@@ -19,7 +19,7 @@ public class AuthService {
     }
 
     private boolean emailExists(String email) {
-        String sql = "SELECT COUNT(*) FROM User WHERE email = ?";
+        String sql = "SELECT COUNT(*) FROM user WHERE email = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, email);
             ResultSet rs = stmt.executeQuery();
@@ -34,7 +34,7 @@ public class AuthService {
 
     private boolean createUser(User user) {
         System.out.println("### SIGNUP ### Début de la création de l'utilisateur: " + user.getEmail());
-        String sql = "INSERT INTO User (nom, prenom, email, mot_de_passe, telephone, ville, date_naissance, photo, type_user, statut) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO user (nom, prenom, email, mot_de_passe, telephone, ville, date_naissance, photo, type_user, statut) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setString(1, user.getNom());
@@ -56,14 +56,14 @@ public class AuthService {
                     user.setIdUser(generatedId);
                     System.out.println("### SIGNUP ### Utilisateur inséré avec succès. ID généré: " + generatedId);
                     if ("Coach".equals(user.getTypeUser())) {
-                        String sqlCoach = "INSERT INTO Coach (id_coach) VALUES (?)";
+                        String sqlCoach = "INSERT INTO coach (id_coach) VALUES (?)";
                         try (PreparedStatement psCoach = connection.prepareStatement(sqlCoach)) {
                             psCoach.setInt(1, generatedId);
                             psCoach.executeUpdate();
                             System.out.println("### SIGNUP ### Profil Coach créé pour l'ID: " + generatedId);
                         }
                     } else if ("Membre".equals(user.getTypeUser())) {
-                        String sqlMembre = "INSERT INTO Membre (id_membre) VALUES (?)";
+                        String sqlMembre = "INSERT INTO membre (id_membre) VALUES (?)";
                         try (PreparedStatement psMembre = connection.prepareStatement(sqlMembre)) {
                             psMembre.setInt(1, generatedId);
                             psMembre.executeUpdate();
@@ -80,7 +80,7 @@ public class AuthService {
     }
 
     private User findUserByEmail(String email) {
-        String sql = "SELECT * FROM User WHERE email = ?";
+        String sql = "SELECT * FROM user WHERE email = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, email);
             ResultSet rs = stmt.executeQuery();
@@ -191,7 +191,8 @@ public class AuthService {
             StringBuilder hexString = new StringBuilder();
             for (byte b : hash) {
                 String hex = Integer.toHexString(0xff & b);
-                if (hex.length() == 1) hexString.append('0');
+                if (hex.length() == 1)
+                    hexString.append('0');
                 hexString.append(hex);
             }
             return hexString.toString();
@@ -202,5 +203,27 @@ public class AuthService {
 
     private boolean verifyPassword(String password, String hashedPassword) {
         return hashPassword(password).equals(hashedPassword);
+    }
+
+    /**
+     * Check if a user email exists in the database.
+     */
+    public boolean userEmailExists(String email) {
+        return emailExists(email);
+    }
+
+    /**
+     * Update a user's password by email.
+     */
+    public boolean updatePassword(String email, String newPassword) {
+        String sql = "IUPDATE user SET mot_de_passe = ? WHERE email = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, hashPassword(newPassword));
+            stmt.setString(2, email);
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.err.println("Erreur mise à jour mot de passe: " + e.getMessage());
+        }
+        return false;
     }
 }

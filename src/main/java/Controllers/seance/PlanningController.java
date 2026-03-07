@@ -37,6 +37,7 @@ import Service.user.ServiceCoach;
 import Service.club.ServiceClub;
 import javafx.util.StringConverter;
 import java.util.stream.Stream;
+import javafx.beans.value.ChangeListener;
 
 public class PlanningController {
 
@@ -76,6 +77,11 @@ public class PlanningController {
     private final ServiceSeance serviceSeance = new ServiceSeance();
     private final int START_HOUR = 8;
     private final int END_HOUR = 21;
+
+    // Named listeners so we can remove/re-add them in clearFilters
+    private final ChangeListener<String> searchListener = (obs, o, n) -> rafraichirPlanning();
+    private final ChangeListener<Coach> coachListener = (obs, o, n) -> rafraichirPlanning();
+    private final ChangeListener<String> niveauListener = (obs, o, n) -> rafraichirPlanning();
 
     // --- INITIALIZATION ---
     @FXML
@@ -428,16 +434,10 @@ public class PlanningController {
                         .collect(Collectors.toList());
 
                 for (Seance s : dailySessions) {
-                    Label sLbl = new Label(
-                            s.getDateDebut().format(DateTimeFormatter.ofPattern("HH:mm")) + " " + s.getTitre());
-                    sLbl.setStyle(
-                            "-fx-background-color: #e0f7fa; -fx-text-fill: #006064; -fx-font-size: 9px; -fx-padding: 2; -fx-background-radius: 3;");
-                    sLbl.setMaxWidth(Double.MAX_VALUE);
-
-                    sLbl.setOnMouseClicked(e -> modifierSeance(s));
-                    sLbl.setCursor(javafx.scene.Cursor.HAND);
-
-                    cell.getChildren().add(sLbl);
+                    Label miniCard = createMinimalMonthCard(s);
+                    // Add a tiny bottom margin so they don't touch each other
+                    VBox.setMargin(miniCard, new Insets(0, 0, 3, 0));
+                    cell.getChildren().add(miniCard);
                 }
 
                 gridPlanning.add(cell, col, row);
@@ -446,6 +446,128 @@ public class PlanningController {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    private Label createMinimalMonthCard(Seance s) {
+        User currentUser = Utils.SessionManager.getCurrentUser();
+        boolean isMember = currentUser != null && "Membre".equals(currentUser.getTypeUser());
+        boolean isCoach = currentUser != null && "Coach".equals(currentUser.getTypeUser());
+        boolean isOwnerCoach = isCoach && (currentUser.getIdUser() == s.getIdCoach());
+
+        int max = s.getCapaciteMax();
+        int current = serviceParticipation.countParticipants(s.getIdSeance());
+        boolean isFull = (max - current) <= 0;
+
+        boolean isAlreadyRegistered = false;
+        if (isMember) {
+            List<Entite.Membre> participants = serviceParticipation.getParticipants(s.getIdSeance());
+            for (Entite.Membre m : participants) {
+                if (m.getIdUser() == currentUser.getIdUser()) {
+                    isAlreadyRegistered = true;
+                    break;
+                }
+            }
+        }
+
+        // 1. Create the compact Label (Time + Title)
+        String time = s.getDateDebut().format(DateTimeFormatter.ofPattern("HH:mm"));
+        Label lbl = new Label(time + " " + s.getTitre());
+        lbl.setMaxWidth(Double.MAX_VALUE);
+        lbl.setCursor(javafx.scene.Cursor.HAND);
+
+        // Color coding based on status
+        if (isAlreadyRegistered) {
+            // Green for registered
+            lbl.setStyle("-fx-background-color: #d1fae5; -fx-text-fill: #065f46; -fx-font-size: 10px; -fx-padding: 3 5; -fx-background-radius: 4; -fx-font-weight: bold;");
+        } else if (isFull) {
+            // Red for full
+            lbl.setStyle("-fx-background-color: #fee2e2; -fx-text-fill: #991b1b; -fx-font-size: 10px; -fx-padding: 3 5; -fx-background-radius: 4;");
+        } else {
+            // Blue for available
+            lbl.setStyle("-fx-background-color: #e0f2fe; -fx-text-fill: #075985; -fx-font-size: 10px; -fx-padding: 3 5; -fx-background-radius: 4;");
+        }
+
+        // 2. Create the Pop-up Menu for Actions
+        ContextMenu menu = new ContextMenu();
+
+        // --- ACTIONS FOR MEMBERS ---
+        if (isMember) {
+            MenuItem actionItem = new MenuItem();
+            if (isAlreadyRegistered) {
+                actionItem.setText("Se désinscrire");
+                actionItem.setOnAction(e -> {
+                    Alert confirm = new Alert(Alert.AlertType.CONFIRMATION, "Se désinscrire ?", ButtonType.YES, ButtonType.NO);
+                    confirm.showAndWait().ifPresent(res -> {
+                        if (res == ButtonType.YES) {
+                            serviceParticipation.annulerParticipation(s.getIdSeance(), currentUser.getIdUser());
+                            rafraichirPlanning();
+                        }
+                    });
+                });
+            } else if (!isFull) {
+                actionItem.setText("Rejoindre (" + (max - current) + " places restantes)");
+                actionItem.setOnAction(e -> {
+                    String res = serviceParticipation.participer(s.getIdSeance(), currentUser.getIdUser());
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION, res);
+                    alert.showAndWait();
+                    rafraichirPlanning();
+                });
+            } else {
+                actionItem.setText("Séance Complète");
+                actionItem.setDisable(true);
+            }
+            menu.getItems().add(actionItem);
+        }
+
+        // --- ACTIONS FOR COACHES & ADMINS ---
+        if (!isMember) {
+            MenuItem listItem = new MenuItem("Voir les participants (" + current + "/" + max + ")");
+            listItem.setOnAction(e -> {
+                try {
+                    FXMLLoader loader = new FXMLLoader(getClass().getResource("/seance/ListeParticipants.fxml"));
+                    Parent root = loader.load();
+                    ListeParticipantsController controller = loader.getController();
+                    controller.setSeance(s);
+                    controller.setOnParticipantsChanged(this::rafraichirPlanning);
+                    Stage stage = new Stage();
+                    stage.setTitle("Participants");
+                    stage.setScene(new Scene(root));
+                    stage.show();
+                } catch (IOException ex) { ex.printStackTrace(); }
+            });
+            menu.getItems().add(listItem);
+
+            MenuItem addParticipantItem = new MenuItem("Ajouter un participant");
+            addParticipantItem.setOnAction(e -> {
+                try {
+                    FXMLLoader loader = new FXMLLoader(getClass().getResource("/seance/AddParticipant.fxml"));
+                    Parent root = loader.load();
+                    AddParticipantController controller = loader.getController();
+                    controller.setSeance(s);
+                    Stage stage = new Stage();
+                    stage.setScene(new Scene(root));
+                    stage.initModality(Modality.APPLICATION_MODAL);
+                    stage.showAndWait();
+                    rafraichirPlanning();
+                } catch (IOException ex) { ex.printStackTrace(); }
+            });
+            if (isFull) addParticipantItem.setDisable(true);
+            menu.getItems().add(addParticipantItem);
+
+            if (!isCoach || isOwnerCoach) {
+                menu.getItems().add(new SeparatorMenuItem());
+                MenuItem modifierItem = new MenuItem("Modifier la séance");
+                modifierItem.setOnAction(e -> modifierSeance(s));
+                MenuItem deleteItem = new MenuItem("Supprimer la séance");
+                deleteItem.setOnAction(e -> supprimerSeance(s));
+                menu.getItems().addAll(modifierItem, deleteItem);
+            }
+        }
+
+        // 3. Show menu on Left-Click (or Right-Click)
+        lbl.setOnMouseClicked(e -> menu.show(lbl, e.getScreenX(), e.getScreenY()));
+
+        return lbl;
     }
 
     private VBox createSessionCard(Seance s) {
@@ -632,6 +754,41 @@ public class PlanningController {
         filterNiveau.setValue(null);
         rafraichirPlanning();
     }
+
+    /*@FXML
+    private void clearFilters() {
+        // Temporarily remove listeners to avoid cascading rafraichirPlanning calls
+        txtSearch.textProperty().removeListener(searchListener);
+        filterCoach.valueProperty().removeListener(coachListener);
+        filterNiveau.valueProperty().removeListener(niveauListener);
+
+        txtSearch.clear();
+        filterCoach.setValue(null);
+        filterCoach.getSelectionModel().clearSelection();
+        filterCoach.setButtonCell(new javafx.scene.control.ListCell<Coach>() {
+            @Override
+            protected void updateItem(Coach item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(item == null ? "Coach" : item.getNom());
+            }
+        });
+        filterNiveau.setValue(null);
+        filterNiveau.getSelectionModel().clearSelection();
+        filterNiveau.setButtonCell(new javafx.scene.control.ListCell<String>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(item == null ? "Niveau" : item);
+            }
+        });
+
+        // Re-add listeners
+        txtSearch.textProperty().addListener(searchListener);
+        filterCoach.valueProperty().addListener(coachListener);
+        filterNiveau.valueProperty().addListener(niveauListener);
+
+        rafraichirPlanning();
+    }*/
 
     @FXML
     private void ajouterSeance() {

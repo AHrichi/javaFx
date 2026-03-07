@@ -8,7 +8,7 @@ public class Membre extends User {
     private String photoProgression;
 
     public Membre() {
-        this.typeUser = "Membre";
+        this.typeUser = "membre";
     }
 
     public Membre(User user, int tailleCm, double poidsKg,

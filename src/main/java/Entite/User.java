@@ -15,16 +15,23 @@ public class User {
     protected String ville;
     protected LocalDate dateNaissance;
     protected String photo;
-    protected String typeUser;   // Coach ou Membre
-    protected String statut;     // actif, inactif, en attente
+    protected String typeUser; // Coach ou Membre
+    protected String statut; // actif, inactif, en attente
 
     public User() {
     }
 
+    public User(int idUser, String nom, String prenom, String email) {
+        this.idUser = idUser;
+        this.nom = nom;
+        this.prenom = prenom;
+        this.email = email;
+    }
+
     public User(int idUser, String nom, String prenom, String email,
-                String motDePasse, LocalDateTime dateInscription,
-                String telephone, String ville, LocalDate dateNaissance,
-                String photo, String typeUser, String statut) {
+            String motDePasse, LocalDateTime dateInscription,
+            String telephone, String ville, LocalDate dateNaissance,
+            String photo, String typeUser, String statut) {
 
         this.idUser = idUser;
         this.nom = nom;

@@ -3,6 +3,7 @@ package Controllers.auth;
 import Entite.Admin;
 import Entite.User;
 import Service.auth.AdminService;
+import Utils.SendEmailService;
 
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
@@ -114,6 +115,10 @@ public class AdminDashboardController {
         adminEmailCol.setCellValueFactory(new PropertyValueFactory<>("email"));
         adminTelCol.setCellValueFactory(new PropertyValueFactory<>("telephone"));
         adminStatutCol.setCellValueFactory(new PropertyValueFactory<>("statut"));
+
+        // Load data immediately
+        refreshUsers();
+        refreshAdmins();
     }
 
     // ===================== Users Actions =====================
@@ -137,6 +142,19 @@ public class AdminDashboardController {
         if (adminService.approveUser(selected.getIdUser())) {
             showAlert("Succès", "Utilisateur " + selected.getNom() + " " + selected.getPrenom() + " approuvé !",
                     Alert.AlertType.INFORMATION);
+            Service.notification.AutoNotificationService.notifyAccountApproved(
+                    selected.getIdUser(), selected.getTypeUser());
+            // Send email notification in background
+            String email = selected.getEmail();
+            String prenom = selected.getPrenom();
+            new Thread(() -> {
+                SendEmailService.envoyerEmail(email,
+                        "SportLink - Compte activé",
+                        "Bonjour " + prenom + ",\n\n"
+                                + "Votre compte SportLink a été activé par un administrateur.\n"
+                                + "Vous pouvez désormais vous connecter à votre espace.\n\n"
+                                + "Cordialement,\nL'équipe SportLink");
+            }).start();
             refreshUsers();
         } else {
             showAlert("Erreur", "Impossible d'approuver l'utilisateur.", Alert.AlertType.ERROR);
@@ -160,6 +178,17 @@ public class AdminDashboardController {
             if (response == ButtonType.OK) {
                 if (adminService.deactivateUser(selected.getIdUser())) {
                     showAlert("Succès", "Utilisateur désactivé.", Alert.AlertType.INFORMATION);
+                    // Send email notification in background
+                    String email = selected.getEmail();
+                    String prenom = selected.getPrenom();
+                    new Thread(() -> {
+                        SendEmailService.envoyerEmail(email,
+                                "SportLink - Compte désactivé",
+                                "Bonjour " + prenom + ",\n\n"
+                                        + "Votre compte SportLink a été désactivé par un administrateur.\n"
+                                        + "Si vous pensez qu'il s'agit d'une erreur, veuillez contacter l'administration.\n\n"
+                                        + "Cordialement,\nL'équipe SportLink");
+                    }).start();
                     refreshUsers();
                 }
             }

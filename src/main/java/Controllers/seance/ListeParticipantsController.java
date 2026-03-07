@@ -53,7 +53,7 @@ public class ListeParticipantsController {
         if (currentUser != null) {
             if ("Coach".equals(currentUser.getTypeUser())) {
                 if (s.getIdCoach() == currentUser.getIdUser()) canKick = true;
-            } else if (!"Membre".equals(currentUser.getTypeUser())) {
+            } else if (!"membre".equals(currentUser.getTypeUser())) {
                 canKick = true;
             }
         }
@@ -77,7 +77,7 @@ public class ListeParticipantsController {
                                     new Thread(() -> {
                                         String sujet = "Annulation de votre séance : " + s.getTitre();
                                         String contenu = "Bonjour " + m.getPrenom() + ",\n\n"
-                                                + "Nous vous informons que votre participation à la séance '" + s.getTitre() + "' a été annulée par le coach.\n"
+                                                + "Nous vous informons que votre participation à la séance '" + s.getTitre() + "' a été annulée par le Coach.\n"
                                                 + "Si vous avez des questions, n'hésitez pas à nous contacter.\n\n"
                                                 + "L'équipe SportLink";
 

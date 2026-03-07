@@ -98,7 +98,7 @@ public class AddParticipantController {
     private void confirm() {
         if (currentSeance == null) return;
 
-        // Get selected member
+        // Get selected Member
         Membre selected = comboMembre.getSelectionModel().getSelectedItem();
 
         // Handle case where user typed name but didn't click selection

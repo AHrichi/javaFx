@@ -22,17 +22,17 @@ public class ServiceCoach implements IService<Coach> { // Changed Object to Coac
     }
 
     @Override
-    public boolean ajouter(Coach coach) throws SQLException { // Changed parameter type
+    public boolean ajouter(Coach Coach) throws SQLException { // Changed parameter type
         boolean test = false;
 
         // 1️⃣ Insertion into User
-        String reqUser = "INSERT INTO User (nom, prenom, email, mot_de_passe, type_user, statut) VALUES (" +
-                "'" + coach.getNom() + "'," +
-                "'" + coach.getPrenom() + "'," +
-                "'" + coach.getEmail() + "'," +
-                "'" + coach.getMotDePasse() + "'," +
+        String reqUser = "INSERT INTO user (nom, prenom, email, mot_de_passe, type_user, statut) VALUES (" +
+                "'" + Coach.getNom() + "'," +
+                "'" + Coach.getPrenom() + "'," +
+                "'" + Coach.getEmail() + "'," +
+                "'" + Coach.getMotDePasse() + "'," +
                 "'Coach'," +
-                "'" + coach.getStatut() + "')";
+                "'" + Coach.getStatut() + "')";
 
         // Use RETURN_GENERATED_KEYS to get the new ID
         int resUser = st.executeUpdate(reqUser, Statement.RETURN_GENERATED_KEYS);
@@ -43,13 +43,13 @@ public class ServiceCoach implements IService<Coach> { // Changed Object to Coac
                 int idUser = rs.getInt(1);
 
                 // 2️⃣ Insertion into Coach using the retrieved ID
-                String reqCoach = "INSERT INTO Coach (id_coach, specialite, experience_annees, certification, biographie, photo_certification) VALUES (" +
+                String reqCoach = "INSERT INTO coach (id_coach, specialite, experience_annees, certification, biographie, photo_certification) VALUES (" +
                         idUser + "," +
-                        "'" + coach.getSpecialite() + "'," +
-                        coach.getExperienceAnnees() + "," +
-                        "'" + coach.getCertification() + "'," +
-                        "'" + coach.getBiographie() + "'," +
-                        "'" + coach.getPhotoCertification() + "')";
+                        "'" + Coach.getSpecialite() + "'," +
+                        Coach.getExperienceAnnees() + "," +
+                        "'" + Coach.getCertification() + "'," +
+                        "'" + Coach.getBiographie() + "'," +
+                        "'" + Coach.getPhotoCertification() + "')";
 
                 int resCoach = st.executeUpdate(reqCoach);
                 if (resCoach > 0)
@@ -63,39 +63,39 @@ public class ServiceCoach implements IService<Coach> { // Changed Object to Coac
     public List<Coach> readAll() throws SQLException { // Changed return type
         List<Coach> list = new ArrayList<>();
 
-        String query = "SELECT * FROM User u JOIN Coach c ON u.id_user = c.id_coach";
+        String query = "SELECT * FROM user u JOIN coach c ON u.id_user = c.id_coach";
         ResultSet rs = st.executeQuery(query);
 
         while (rs.next()) {
             // Reconstruct the Coach object
             // Note: You need a constructor in Coach that accepts these values or use setters
-            Coach coach = new Coach();
-            coach.setIdUser(rs.getInt("id_user"));
-            coach.setNom(rs.getString("nom"));
-            coach.setPrenom(rs.getString("prenom"));
-            coach.setEmail(rs.getString("email"));
-            coach.setStatut(rs.getString("statut"));
+            Coach Coach = new Coach();
+            Coach.setIdUser(rs.getInt("id_user"));
+            Coach.setNom(rs.getString("nom"));
+            Coach.setPrenom(rs.getString("prenom"));
+            Coach.setEmail(rs.getString("email"));
+            Coach.setStatut(rs.getString("statut"));
             // ... set other user fields ...
 
-            coach.setSpecialite(rs.getString("specialite"));
-            coach.setExperienceAnnees(rs.getInt("experience_annees"));
-            coach.setCertification(rs.getString("certification"));
-            coach.setBiographie(rs.getString("biographie"));
-            coach.setPhotoCertification(rs.getString("photo_certification"));
+            Coach.setSpecialite(rs.getString("specialite"));
+            Coach.setExperienceAnnees(rs.getInt("experience_annees"));
+            Coach.setCertification(rs.getString("certification"));
+            Coach.setBiographie(rs.getString("biographie"));
+            Coach.setPhotoCertification(rs.getString("photo_certification"));
 
-            list.add(coach);
+            list.add(Coach);
         }
         return list;
     }
 
     @Override
-    public boolean supprimer(Coach coach) throws SQLException {
-        String req = "DELETE FROM User WHERE id_user = " + coach.getIdUser();
+    public boolean supprimer(Coach Coach) throws SQLException {
+        String req = "DELETE FROM user WHERE id_user = " + Coach.getIdUser();
         return st.executeUpdate(req) > 0;
     }
 
     @Override
-    public boolean modifier(Coach coach) throws SQLException {
+    public boolean modifier(Coach Coach) throws SQLException {
         return false; // Implement update logic here
     }
 

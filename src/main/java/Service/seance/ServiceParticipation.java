@@ -3,6 +3,7 @@ package Service.seance;
 import Service.IService;
 import Utils.DataSource;
 import Utils.EmailService;
+import Service.notification.AutoNotificationService;
 import java.sql.*;
 import Entite.Membre;
 import Entite.Seance;
@@ -13,14 +14,17 @@ import java.util.List;
 
 public class ServiceParticipation implements IService<Participant> {
 
-    private Connection getConnect() { return DataSource.getConnection(); }
+    private Connection getConnect() {
+        return DataSource.getConnection();
+    }
+
     private ServiceSeance serviceSeance = new ServiceSeance();
 
     // Method to join a session
     public String participer(int idSeance, int idMembre) {
         try {
             // 1. Fetch target seance details to check time and status
-            String seanceReq = "SELECT date_debut, date_fin, statut FROM Seance WHERE id_seance = ?";
+            String seanceReq = "SELECT date_debut, date_fin, statut FROM seance WHERE id_seance = ?";
             PreparedStatement psTarget = getConnect().prepareStatement(seanceReq);
             psTarget.setInt(1, idSeance);
             ResultSet rsTarget = psTarget.executeQuery();
@@ -51,10 +55,9 @@ public class ServiceParticipation implements IService<Participant> {
                 return "Déjà inscrit !";
             }
 
-            // 3. EDGE CASE: Check overlapping sessions for this member
-            // A session overlaps if (Existing_Start < Target_End) AND (Existing_End > Target_Start)
+            // 3. EDGE CASE: Check overlapping sessions for this Member
             String overlapReq = "SELECT count(*) FROM participation p " +
-                    "JOIN Seance s ON p.id_seance = s.id_seance " +
+                    "JOIN seance s ON p.id_seance = s.id_seance " +
                     "WHERE p.id_membre = ? AND p.id_seance != ? " +
                     "AND s.date_debut < ? AND s.date_fin > ?";
             PreparedStatement psOverlap = getConnect().prepareStatement(overlapReq);
@@ -67,20 +70,45 @@ public class ServiceParticipation implements IService<Participant> {
                 return "Conflit d'horaire : Le membre a déjà une autre séance prévue à ce moment-là !";
             }
 
-            // 4. Check Capacity
-            String capReq = "SELECT s.capacite_max, (SELECT COUNT(*) FROM participation p WHERE p.id_seance = s.id_seance) as total " +
-                    "FROM Seance s WHERE s.id_seance = ?";
+            // 4. Check Capacity (Current participants vs Max Capacity)
+            String capReq = "SELECT s.capacite_max, s.titre, s.id_coach, (SELECT COUNT(*) FROM participation p WHERE p.id_seance = s.id_seance) as total "
+                    +
+                    "FROM seance s WHERE s.id_seance = ?";
             PreparedStatement psCap = getConnect().prepareStatement(capReq);
             psCap.setInt(1, idSeance);
             ResultSet rsCap = psCap.executeQuery();
 
+            int max = 0;
+            int current = 0;
+            String seanceTitre = "";
+            int coachId = 0;
+
             if (rsCap.next()) {
-                int max = rsCap.getInt("capacite_max");
-                int current = rsCap.getInt("total");
+                max = rsCap.getInt("capacite_max");
+                current = rsCap.getInt("total");
+                seanceTitre = rsCap.getString("titre");
+                coachId = rsCap.getInt("id_coach");
 
                 if (current >= max) {
                     return "Séance complète !";
                 }
+            }
+
+            if (idMembre <= 0) {
+                return "Erreur : ID Membre invalide (" + idMembre + "). Vérifiez le mappage dans ServiceMembre.";
+            }
+
+            String checkMembreReq = "SELECT id_membre FROM membre WHERE id_membre = ?";
+            PreparedStatement psCheckMembre = getConnect().prepareStatement(checkMembreReq);
+            psCheckMembre.setInt(1, idMembre);
+            ResultSet rsCheckMembre = psCheckMembre.executeQuery();
+
+            if (!rsCheckMembre.next()) {
+                // Explicitly insert into membre table
+                String insertMembreReq = "INSERT INTO membre (id_membre) VALUES (?)";
+                PreparedStatement psInsertMembre = getConnect().prepareStatement(insertMembreReq);
+                psInsertMembre.setInt(1, idMembre);
+                psInsertMembre.executeUpdate();
             }
 
             // 5. Add Reservation
@@ -88,14 +116,32 @@ public class ServiceParticipation implements IService<Participant> {
             PreparedStatement ps = getConnect().prepareStatement(req);
             ps.setInt(1, idSeance);
             ps.setInt(2, idMembre);
-
             ps.executeUpdate();
 
-            // 6. Send Email Notification
-            sendParticipationEmail(idSeance, idMembre, "Ajout à une séance",
-                    "Bonjour,\n\nVous avez été ajouté avec succès à la séance : ");
+            // 6. Auto-notifications + Email
+            // We run DB operations on the main thread to prevent ResultSet concurrency crashes.
+            // The actual email sending over the network will still be asynchronous via EmailService.
+            try {
+                // #2 — Confirm to member
+                AutoNotificationService.notifyParticipationConfirmed(idMembre, idSeance, seanceTitre);
 
-            return "Inscription réussie ! Un email a été envoyé au membre.";
+                // #5 — Notify coach of new participant
+                String membreName = getMembreName(idMembre);
+                AutoNotificationService.notifyCoachNewParticipant(coachId, seanceTitre, membreName);
+
+                // #8 — If session is now full, notify admin
+                if (current + 1 >= max) {
+                    AutoNotificationService.notifySessionFull(seanceTitre);
+                }
+
+                // Send Email
+                sendParticipationEmail(idSeance, idMembre, "Ajout à une séance",
+                        "Bonjour,\n\nVous avez été ajouté avec succès à la séance : ");
+            } catch (Exception ex) {
+                System.err.println("Notification error: " + ex.getMessage());
+            }
+
+            return "Inscription réussie !";
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -125,7 +171,7 @@ public class ServiceParticipation implements IService<Participant> {
     private void sendParticipationEmail(int idSeance, int idMembre, String subject, String messagePrefix) {
         try {
             // Fetch Member Email
-            String emailReq = "SELECT email, prenom FROM User WHERE id_user = ?";
+            String emailReq = "SELECT email, prenom FROM user WHERE id_user = ?";
             PreparedStatement psUser = getConnect().prepareStatement(emailReq);
             psUser.setInt(1, idMembre);
             ResultSet rsUser = psUser.executeQuery();
@@ -169,8 +215,8 @@ public class ServiceParticipation implements IService<Participant> {
         List<Membre> list = new ArrayList<>();
         try {
             // Join User, Membre, and Participation tables
-            String req = "SELECT u.*, m.* FROM User u " +
-                    "JOIN Membre m ON u.id_user = m.id_membre " +
+            String req = "SELECT u.*, m.* FROM user u " +
+                    "JOIN membre m ON u.id_user = m.id_membre " +
                     "JOIN participation p ON m.id_membre = p.id_membre " +
                     "WHERE p.id_seance = ?";
 
@@ -221,6 +267,21 @@ public class ServiceParticipation implements IService<Participant> {
 
     @Override
     public List<Participant> readAll() throws SQLException {
-        return List.of();
+        return new ArrayList<>();
+    }
+
+    /** Looks up a Member's full name from the User table. */
+    private String getMembreName(int membreId) {
+        try {
+            String sql = "SELECT CONCAT(prenom, ' ', nom) AS full_name FROM user WHERE id_user=?";
+            PreparedStatement ps = getConnect().prepareStatement(sql);
+            ps.setInt(1, membreId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next())
+                return rs.getString("full_name");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return "Un membre";
     }
 }

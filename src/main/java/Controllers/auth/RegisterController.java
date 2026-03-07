@@ -57,6 +57,8 @@ public class RegisterController {
 
         String error = authService.register(nom, prenom, email, password, typeUser);
         if (error == null) {
+            Service.notification.AutoNotificationService.notifyNewRegistration(
+                    prenom + " " + nom, typeUser);
             showSuccess("Inscription réussie ! Votre compte est en attente de validation.");
             // After 2 seconds, navigate to login
             new Thread(() -> {

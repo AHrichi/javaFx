@@ -55,6 +55,11 @@ public class LoginController {
     }
 
     @FXML
+    private void onGoToForgotPassword(ActionEvent event) {
+        switchScene("/auth/ForgotPassword.fxml");
+    }
+
+    @FXML
     private void onGoToAdminLogin(ActionEvent event) {
         switchScene("/auth/AdminLogin.fxml");
     }

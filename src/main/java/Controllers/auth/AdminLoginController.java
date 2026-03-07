@@ -55,13 +55,9 @@ public class AdminLoginController {
 
     private void navigateToAdminDashboard(Admin admin) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/auth/AdminDashboard.fxml"));
-            Parent content = loader.load();
-
-            AdminDashboardController controller = loader.getController();
-            controller.setCurrentAdmin(admin);
-
-            emailField.getScene().setRoot(content);
+            Utils.SessionManager.setCurrentAdmin(admin);
+            Parent root = FXMLLoader.load(getClass().getResource("/home/home.fxml"));
+            emailField.getScene().setRoot(root);
         } catch (IOException e) {
             e.printStackTrace();
         }

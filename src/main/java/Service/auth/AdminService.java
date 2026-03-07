@@ -53,7 +53,7 @@ public class AdminService {
 
     public List<User> getAllUsers() {
         List<User> users = new ArrayList<>();
-        String sql = "SELECT * FROM User";
+        String sql = "SELECT * FROM user";
         try (Statement stmt = connection.createStatement();
                 ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
@@ -74,7 +74,7 @@ public class AdminService {
     }
 
     public boolean deleteUser(int userId) {
-        String sql = "DELETE FROM User WHERE id_user = ?";
+        String sql = "DELETE FROM user WHERE id_user = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, userId);
             return stmt.executeUpdate() > 0;
@@ -171,7 +171,7 @@ public class AdminService {
     }
 
     private boolean updateUserStatut(int userId, String statut) {
-        String sql = "UPDATE User SET statut = ? WHERE id_user = ?";
+        String sql = "UPDATE user SET statut = ? WHERE id_user = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, statut);
             stmt.setInt(2, userId);

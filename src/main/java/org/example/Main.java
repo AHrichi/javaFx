@@ -14,6 +14,7 @@ public class Main extends Application {
     public void init() {
         try {
             Font.loadFont(getClass().getResourceAsStream("/fonts/Poppins-Regular.ttf"), 14);
+            Font.loadFont(getClass().getResourceAsStream("/fonts/MaterialIcons-Regular.ttf"), 18);
         } catch (Exception ignored) {
         }
     }

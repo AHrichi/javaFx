@@ -20,7 +20,7 @@ public class NotificationService implements INotificationService {
 
         String sql = "INSERT INTO notifications (title, message, recipient_id, recipient_role, type, read_status, created_by, source) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = DataSource.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+                PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, n.getTitle());
             ps.setString(2, n.getMessage());
             ps.setObject(3, n.getRecipientId());
@@ -31,7 +31,8 @@ public class NotificationService implements INotificationService {
             ps.setString(8, n.getSource() != null ? n.getSource().name() : "MANUAL");
             ps.executeUpdate();
             ResultSet rs = ps.getGeneratedKeys();
-            if (rs.next()) n.setId(rs.getInt(1));
+            if (rs.next())
+                n.setId(rs.getInt(1));
         } catch (SQLException e) {
             throw new RuntimeException("Erreur création notification", e);
         }
@@ -46,7 +47,7 @@ public class NotificationService implements INotificationService {
 
         String sql = "UPDATE notifications SET title=?, message=?, recipient_id=?, recipient_role=?, type=?, read_status=? WHERE id=?";
         try (Connection conn = DataSource.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+                PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, n.getTitle());
             ps.setString(2, n.getMessage());
             ps.setObject(3, n.getRecipientId());
@@ -64,7 +65,7 @@ public class NotificationService implements INotificationService {
     public void delete(int id) {
         String sql = "DELETE FROM notifications WHERE id=?";
         try (Connection conn = DataSource.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+                PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, id);
             ps.executeUpdate();
         } catch (SQLException e) {
@@ -76,10 +77,11 @@ public class NotificationService implements INotificationService {
     public Notification findById(int id) {
         String sql = "SELECT * FROM notifications WHERE id=?";
         try (Connection conn = DataSource.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+                PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
-            if (rs.next()) return mapRow(rs);
+            if (rs.next())
+                return mapRow(rs);
         } catch (SQLException e) {
             throw new RuntimeException("Erreur recherche notification", e);
         }
@@ -91,9 +93,10 @@ public class NotificationService implements INotificationService {
         List<Notification> list = new ArrayList<>();
         String sql = "SELECT * FROM notifications ORDER BY created_at DESC";
         try (Connection conn = DataSource.getConnection();
-             Statement st = conn.createStatement();
-             ResultSet rs = st.executeQuery(sql)) {
-            while (rs.next()) list.add(mapRow(rs));
+                Statement st = conn.createStatement();
+                ResultSet rs = st.executeQuery(sql)) {
+            while (rs.next())
+                list.add(mapRow(rs));
         } catch (SQLException e) {
             throw new RuntimeException("Erreur liste notifications", e);
         }
@@ -105,15 +108,44 @@ public class NotificationService implements INotificationService {
         List<Notification> list = new ArrayList<>();
         String sql = "SELECT * FROM notifications WHERE recipient_role=? AND (recipient_id IS NULL OR recipient_id=?) ORDER BY created_at DESC";
         try (Connection conn = DataSource.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+                PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, role.name());
             ps.setObject(2, userId);
             ResultSet rs = ps.executeQuery();
-            while (rs.next()) list.add(mapRow(rs));
+            while (rs.next())
+                list.add(mapRow(rs));
         } catch (SQLException e) {
             throw new RuntimeException("Erreur recherche par rôle/user", e);
         }
         return list;
+    }
+
+    @Override
+    public int countUnread(Notification.RecipientRole role, Integer userId) {
+        String sql = "SELECT COUNT(*) FROM notifications WHERE recipient_role=? AND (recipient_id IS NULL OR recipient_id=?) AND read_status=0";
+        try (Connection conn = DataSource.getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, role.name());
+            ps.setObject(2, userId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next())
+                return rs.getInt(1);
+        } catch (SQLException e) {
+            throw new RuntimeException("Erreur comptage non lues", e);
+        }
+        return 0;
+    }
+
+    @Override
+    public void markAsRead(int id) {
+        String sql = "UPDATE notifications SET read_status=1 WHERE id=?";
+        try (Connection conn = DataSource.getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Erreur marquer comme lu", e);
+        }
     }
 
     private Notification mapRow(ResultSet rs) throws SQLException {

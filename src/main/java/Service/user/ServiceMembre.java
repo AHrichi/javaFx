@@ -29,7 +29,7 @@ public class ServiceMembre implements IService<Membre> {
 
         // 1️⃣ User
         String reqUser =
-                "INSERT INTO User (nom, prenom, email, mot_de_passe, type_user, statut) VALUES (" +
+                "INSERT INTO user (nom, prenom, email, mot_de_passe, type_user, statut) VALUES (" +
                         "'" + membre.getNom() + "'," +
                         "'" + membre.getPrenom() + "'," +
                         "'" + membre.getEmail() + "'," +
@@ -46,7 +46,7 @@ public class ServiceMembre implements IService<Membre> {
 
                 // 2️⃣ Membre
                 String reqMembre =
-                        "INSERT INTO Membre (id_membre, taille_cm, poids_kg, objectif_sportif, photo_progression) VALUES (" +
+                        "INSERT INTO membre (id_membre, taille_cm, poids_kg, objectif_sportif, photo_progression) VALUES (" +
                                 idUser + "," +
                                 membre.getTailleCm() + "," +
                                 membre.getPoidsKg() + "," +
@@ -66,7 +66,7 @@ public class ServiceMembre implements IService<Membre> {
         List<Membre> list = new ArrayList<>();
 
         String query =
-                "SELECT * FROM User u JOIN Membre m ON u.id_user = m.id_membre";
+                "SELECT * FROM user u JOIN membre m ON u.id_user = m.id_membre";
 
         ResultSet rs = st.executeQuery(query);
 
@@ -89,7 +89,7 @@ public class ServiceMembre implements IService<Membre> {
 
     @Override
     public boolean supprimer(Membre membre) throws SQLException {
-        String req = "DELETE FROM User WHERE id_user = " + membre.getIdUser();
+        String req = "DELETE FROM user WHERE id_user = " + membre.getIdUser();
         return st.executeUpdate(req) > 0;
     }
 
